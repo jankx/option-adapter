@@ -1,0 +1,13 @@
+{
+    "name": "jankx/options",
+    "description": "Jankx options usable to create the theme, add-on options integrate with your loved option frameworks",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Puleeno Nguyen",
+            "email": "puleeno@gmail.com"
+        }
+    ],
+    "require": {}
+}
