@@ -1,5 +1,5 @@
 {
-  "name": "jankx/options",
+  "name": "jankx/option",
   "description": "Jankx options usable to create the theme, add-on options integrate with your loved option frameworks",
   "type": "library",
   "license": "MIT",
@@ -13,7 +13,7 @@
   "require": {},
   "autoload": {
     "psr-4": {
-      "Jankx\\Options\\": "src/"
+      "Jankx\\Option\\": "src/"
     }
   }
 }
