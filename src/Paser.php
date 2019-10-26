@@ -9,4 +9,3 @@ namespace Jankx\Option;
 class Parser
 {
 }
-
