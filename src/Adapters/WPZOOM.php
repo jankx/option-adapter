@@ -3,6 +3,6 @@ namespace Jankx\Option\Adapters;
 
 use Jankx\Option\OptionFrameworkAdapter;
 
-class ReduxFramework extends OptionFrameworkAdapter
+class WPZOOM extends OptionFrameworkAdapter
 {
 }

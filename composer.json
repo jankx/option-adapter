@@ -15,5 +15,6 @@
     "psr-4": {
       "Jankx\\Option\\": "src/"
     }
-  }
+  },
+  "version": "1.0.0"
 }
