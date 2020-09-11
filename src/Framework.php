@@ -11,6 +11,98 @@
 
 namespace Jankx\Option;
 
+use Jankx\Option\Adapters\Kirki;
+use Jankx\Option\Adapters\ReduxFramework;
+use Jankx\Option\Adapters\WordPressSettingAPI;
+use Jankx\Option\Adapters\WPZOOM;
+
 class Framework
 {
+    protected static $instance;
+    protected static $framework;
+    protected static $mode = 'auto';
+
+    public static function getInstance()
+    {
+        if (is_null(static::$instance)) {
+            static::$instance = new static();
+        }
+
+        return static::$instance;
+    }
+
+    private function __construct()
+    {
+        $this->defineConstants();
+        $this->loadHelpers();
+    }
+
+    public function detect()
+    {
+        if (static::$mode === 'auto') {
+            static::$mode = $this->findOptionFramework();
+        }
+        $supportedFrameworks = array(
+            'redux' => ReduxFramework::class
+        );
+    }
+
+    private function define($name, $value)
+    {
+        if (!defined($name)) {
+            define($name, $value);
+        }
+    }
+
+    protected function defineConstants()
+    {
+        $this->define('JANKX_OPTION_ABSPATH', realpath(dirname(__FILE__) . '/..'));
+    }
+
+    protected function loadHelpers()
+    {
+        require_once sprintf('%s/helpers.php', JANKX_OPTION_ABSPATH);
+    }
+
+    public function setMode($mode)
+    {
+        static::$mode = $mode;
+    }
+
+    protected function detectFramework()
+    {
+        if ((defined('WPZOOM_INC') && class_exists('option'))) {
+            return 'zoom';
+        }
+    }
+
+    public function loadFramework()
+    {
+        if (static::$mode === 'auto') {
+            static::$mode = $this->detectFramework();
+        }
+
+        $frameworks = apply_filters('jankx_option_framework_modes', array(
+            'Kirki'     => Kirki::class,
+            'redux'     => ReduxFramework::class,
+            'wordpress' => WordPressSettingAPI::class,
+            'zoom'      => WPZOOM::class,
+        ));
+        if (!isset($frameworks[static::$mode])) {
+            throw new \Exception(sprintf(
+                'The option framework mode "%s" is not supported',
+                static::$mode,
+            ));
+        }
+
+        // Jankx option is not support override Framework to get good result
+        if (is_null(static::$framework)) {
+            static::$framework = new $frameworks[static::$mode];
+        }
+    }
+
+    public static function getFramework()
+    {
+        return static::$framework;
+    }
 }
