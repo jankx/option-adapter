@@ -71,9 +71,13 @@ class Framework
 
     protected function detectFramework()
     {
+        if (class_exists('ReduxFramework')) {
+            return 'redux';
+        }
         if ((defined('WPZOOM_INC') && class_exists('option'))) {
             return 'zoom';
         }
+        return 'wordpress';
     }
 
     public function loadFramework()
@@ -98,6 +102,13 @@ class Framework
         // Jankx option is not support override Framework to get good result
         if (is_null(static::$framework)) {
             static::$framework = new $frameworks[static::$mode];
+
+            static::$framework->prepare();
+
+            do_action_ref_array('jankx_option_setup_framework', array(
+                &static::$framework,
+                static::$mode
+            ));
         }
     }
 

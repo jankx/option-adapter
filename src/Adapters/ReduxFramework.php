@@ -5,4 +5,7 @@ use Jankx\Option\OptionFrameworkAdapter;
 
 class ReduxFramework extends OptionFrameworkAdapter
 {
+    public function getOption($name, $defaultValue = null)
+    {
+    }
 }
