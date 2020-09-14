@@ -26,7 +26,7 @@ class Option
         }
 
         return $framework->getOption(
-            $defaultValue,
+            $optionName,
             $defaultValue
         );
     }
