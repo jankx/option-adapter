@@ -3,11 +3,15 @@
 use Jankx\Option\Framework;
 use Jankx\Option\OptionFrameworkAdapter;
 
-if (!function_exists('jankx_option')) {
-    function jankx_option($optionName, $defaultValue = null)
+if (!function_exists('jankx_get_option')) {
+    function jankx_get_option($optionName, $defaultValue = null)
     {
-        $framework = Framework::getFramework();
+        $pre = apply_filters("jankx_get_option_{$optionName}", null, $defaultValue);
+        if (!is_null($pre)) {
+            return $pre;
+        }
 
+        $framework = Framework::getFramework();
         if (is_null($framework)) {
             return $defaultValue;
         }
@@ -18,6 +22,7 @@ if (!function_exists('jankx_option')) {
                 OptionFrameworkAdapter::class
             ));
         }
+
         return $framework->getOption(
             $defaultValue,
             $defaultValue
