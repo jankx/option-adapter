@@ -1,6 +1,7 @@
 <?php
 namespace Jankx\Option\Adapters;
 
+use option;
 use Jankx\Option\OptionFrameworkAdapter;
 
 class WPZOOM extends OptionFrameworkAdapter
