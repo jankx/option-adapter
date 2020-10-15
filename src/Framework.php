@@ -95,7 +95,7 @@ class Framework
         if (!isset($frameworks[static::$mode])) {
             throw new \Exception(sprintf(
                 'The option framework mode "%s" is not supported',
-                static::$mode,
+                static::$mode
             ));
         }
 
