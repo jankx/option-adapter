@@ -11,7 +11,7 @@ class ReduxFramework extends OptionFrameworkAdapter
     {
         $reduxOptionName = apply_filters(
             'jankx_option_redux_framework_option_name',
-            get_stylesheet(),
+            get_stylesheet()
         );
         global $$reduxOptionName;
 
