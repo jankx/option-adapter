@@ -31,12 +31,6 @@ class Framework
         return static::$instance;
     }
 
-    private function __construct()
-    {
-        $this->defineConstants();
-        $this->loadHelpers();
-    }
-
     public function detect()
     {
         if (static::$mode === 'auto') {
@@ -52,16 +46,6 @@ class Framework
         if (!defined($name)) {
             define($name, $value);
         }
-    }
-
-    protected function defineConstants()
-    {
-        $this->define('JANKX_OPTION_ABSPATH', realpath(dirname(__FILE__) . '/..'));
-    }
-
-    protected function loadHelpers()
-    {
-        require_once sprintf('%s/helpers.php', JANKX_OPTION_ABSPATH);
     }
 
     public function setMode($mode)
