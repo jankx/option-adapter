@@ -1,7 +1,9 @@
 <?php
-namespace Jankx\Option;
+namespace Jankx\Option\Abstracts;
 
-abstract class OptionFrameworkAdapter
+use Jankx\Option\Interfaces\Adapter as AdapterInterface;
+
+abstract class Adapter implements AdapterInterface
 {
     /**
      * Implement initialize options
@@ -12,6 +14,4 @@ abstract class OptionFrameworkAdapter
     {
         // Implement code here
     }
-
-    abstract public function getOption($name, $defaultValue = null);
 }

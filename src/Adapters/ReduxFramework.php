@@ -1,9 +1,9 @@
 <?php
 namespace Jankx\Option\Adapters;
 
-use Jankx\Option\OptionFrameworkAdapter;
+use Jankx\Option\Abstracts\Adapter;
 
-class ReduxFramework extends OptionFrameworkAdapter
+class ReduxFramework extends Adapter
 {
     protected $themeOptions;
 

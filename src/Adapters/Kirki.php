@@ -16,8 +16,8 @@
  */
 namespace Jankx\Option\Adapters;
 
-use Jankx\Option\OptionFrameworkAdapter;
+use Jankx\Option\Abstracts\Adapter;
 
-class Kirki extends OptionFrameworkAdapter
+class Kirki extends Adapter
 {
 }

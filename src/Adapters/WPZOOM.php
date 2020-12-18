@@ -2,9 +2,9 @@
 namespace Jankx\Option\Adapters;
 
 use option;
-use Jankx\Option\OptionFrameworkAdapter;
+use Jankx\Option\Abstracts\Adapter;
 
-class WPZOOM extends OptionFrameworkAdapter
+class WPZOOM extends Adapter
 {
     public function getOption($name, $defaultValue = null)
     {

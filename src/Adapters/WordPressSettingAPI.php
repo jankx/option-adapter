@@ -1,9 +1,9 @@
 <?php
 namespace Jankx\Option\Adapters;
 
-use Jankx\Option\OptionFrameworkAdapter;
+use Jankx\Option\Abstracts\Adapter;
 
-class WordPressSettingAPI extends OptionFrameworkAdapter
+class WordPressSettingAPI extends Adapter
 {
     public function getOption($name, $defaultValue = null)
     {
