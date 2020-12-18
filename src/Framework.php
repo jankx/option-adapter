@@ -58,6 +58,10 @@ class Framework
     {
         if (static::$mode === 'auto') {
             static::$mode = $this->detectFramework();
+
+            if (static::$mode) {
+                update_option('jankx_option_framework', static::$mode);
+            }
         }
 
         $frameworks = apply_filters('jankx_option_framework_modes', array(
