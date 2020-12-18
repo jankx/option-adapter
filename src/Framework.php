@@ -31,16 +31,6 @@ class Framework
         return static::$instance;
     }
 
-    public function detect()
-    {
-        if (static::$mode === 'auto') {
-            static::$mode = $this->findOptionFramework();
-        }
-        $supportedFrameworks = array(
-            'redux' => ReduxFramework::class
-        );
-    }
-
     private function define($name, $value)
     {
         if (!defined($name)) {
