@@ -9,4 +9,10 @@ class WordPressSettingAPI extends Adapter
     {
         return get_option($name, $defaultValue);
     }
+
+
+    public function register_admin_menu($menu_title, $display_name)
+    {
+        // add_menu_page($menu_title, $display_name, 'manage_options', 'jankx', null, null, 65);
+    }
 }
