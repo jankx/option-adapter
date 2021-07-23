@@ -45,7 +45,7 @@ class Framework
 
     protected function detectFramework()
     {
-        if (class_exists('ReduxFramework')) {
+        if (class_exists('Redux')) {
             return 'redux';
         }
         if ((defined('WPZOOM_INC') && class_exists('option'))) {
@@ -57,9 +57,9 @@ class Framework
     public function loadFramework()
     {
         if (static::$mode === 'auto') {
-            static::$mode = $this->detectFramework();
+            $mode = $this->detectFramework();
 
-            if (static::$mode) {
+            if ($mode && !(static::$mode === 'auto' && $mode === 'wordpress')) {
                 update_option('jankx_option_framework', static::$mode);
             }
         }
@@ -70,6 +70,7 @@ class Framework
             'wordpress' => WordPressSettingAPI::class,
             'zoom'      => WPZOOM::class,
         ));
+
         if (!isset($frameworks[static::$mode])) {
             throw new \Exception(sprintf(
                 'The option framework mode "%s" is not supported',
@@ -90,7 +91,7 @@ class Framework
         }
     }
 
-    public static function getFramework()
+    public static function getActiveFramework()
     {
         return static::$framework;
     }
