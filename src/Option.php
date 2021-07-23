@@ -6,6 +6,10 @@ use Jankx\Option\Framework;
 
 class Option
 {
+    public static function get_option_object_name()
+    {
+    }
+
     public static function get($optionName, $defaultValue = null)
     {
         $pre = apply_filters("jankx_get_option_{$optionName}", null, $defaultValue);
