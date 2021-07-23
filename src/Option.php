@@ -13,7 +13,7 @@ class Option
             return $pre;
         }
 
-        $framework = Framework::getFramework();
+        $framework = Framework::getActiveFramework();
         if (is_null($framework)) {
             return $defaultValue;
         }
