@@ -59,8 +59,9 @@ class Framework
         if (static::$mode === 'auto') {
             $mode = $this->detectFramework();
 
-            if ($mode && !(static::$mode === 'auto' && $mode === 'wordpress')) {
-                update_option('jankx_option_framework', static::$mode);
+            if ($mode && $mode !== 'auto') {
+                update_option('jankx_option_framework', $mode);
+                static::$mode = $mode;
             }
         }
 
