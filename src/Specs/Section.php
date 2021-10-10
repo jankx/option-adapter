@@ -12,8 +12,8 @@ class Section
     protected $requiredSection;
     protected $hint;
     protected $fields = array();
-    protected $children = array();
-    protected $priority = 10;
+    private $children = array();
+    private $priority = 10;
 
     public function __construct($id, $title, $subtitle = '', $description = '', $icon = '', $requiredSection = true, $hint = array(), $priority = 10)
     {

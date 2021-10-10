@@ -27,11 +27,13 @@ abstract class Adapter implements AdapterInterface
                 $property->getValue($field)
             );
         }
-        if (empty($ret['props'])) {
+
+
+        if (count($field->props) <= 0) {
             return $ret;
         }
-        
-        foreach ($ret['props'] as $prop => $value) {
+
+        foreach ($field->props as $prop => $value) {
             $ret[$prop] = $value;
         }
         return $ret;

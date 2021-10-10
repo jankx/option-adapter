@@ -11,8 +11,8 @@ class Field
     protected $requiredField;
     protected $defaultValue;
     protected $hint;
-    protected $priority = 10;
-    protected $props = array();
+    private $priority = 10;
+    private $props = array();
 
     public function __construct($id, $title, $type, $subtitle = '', $desc = '', $requiredField = false, $defaultValue = '', $hint = array(), $priority = 10)
     {

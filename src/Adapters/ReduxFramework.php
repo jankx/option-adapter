@@ -15,7 +15,8 @@ class ReduxFramework extends Adapter
         'requiredSection' => 'require',
     );
     protected static $mapFieldProperties = array(
-        'requiredField' => 'require'
+        'requiredField' => 'require',
+        'defaultValue' => 'default',
     );
 
     public static function mapSectionFields()
