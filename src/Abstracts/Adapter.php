@@ -51,7 +51,6 @@ abstract class Adapter implements AdapterInterface
                 $property->getValue($section)
             );
         }
-
         return $ret;
     }
 }

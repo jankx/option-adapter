@@ -14,12 +14,12 @@ class Field
     protected $priority = 10;
     protected $props = array();
 
-    public function __construct($id, $type, $title, $subtitle = '', $desc = '', $requiredField = false, $defaultValue = '', $hint = array(), $priority = 10)
+    public function __construct($id, $title, $type, $subtitle = '', $desc = '', $requiredField = false, $defaultValue = '', $hint = array(), $priority = 10)
     {
         // Required fields
         $this->id = $id;
-        $this->type = $type;
         $this->title = $title;
+        $this->type = $type;
 
         // Optional fields
         $this->subtitle = $subtitle;
@@ -45,8 +45,8 @@ class Field
 
         return new static(
             $field['id'],
-            $field['type'],
             array_get($field, 'title', ''),
+            array_get($field, 'type', 'text'),
             array_get($field, 'subtitle', ''),
             array_get($field, 'desc', ''),
             array_get($field, 'required', false),

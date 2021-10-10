@@ -65,16 +65,20 @@ class OptionsReader
                     $section_id = $dirName;
                 }
                 $this->readOptionFromFiles($file, $options, $dirName === 'fields', $section_id);
-            } elseif ($isFields || is_null($path)) {
-                $fields = include $file;
-                if (isset($fields['fields'])) {
-                    $this->mergeFields($options[$section_id], $fields);
-                } else {
-                    $this->appendFields($options[$section_id]['fields'], $fields);
-                }
             } else {
                 $fields = include $file;
-                $options[$section_id] = array_merge($options[$section_id], $fields);
+                if (empty($fields)) {
+                    continue;
+                }
+                if ($isFields || is_null($path)) {
+                    if (isset($fields['fields'])) {
+                        $this->mergeFields($options[$section_id], $fields);
+                    } else {
+                        $this->appendFields($options[$section_id]['fields'], $fields);
+                    }
+                } else {
+                    $options[$section_id] = array_merge($options[$section_id], $fields);
+                }
             }
         }
 
@@ -82,7 +86,7 @@ class OptionsReader
         $this->mergeFields($options['general'], array(
             'id' => 'general',
             'title' => __('General'),
-            'icon' => 'dashicons-admin-generic',
+            'icon' => 'dashicons dashicons-admin-generic',
             'priority' => 5
         ));
 

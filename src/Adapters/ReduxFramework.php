@@ -34,8 +34,11 @@ class ReduxFramework extends Adapter
     {
         $this->createOptionName();
 
-        $reduxOptions = $GLOBALS[$this->optionName];
-        $this->themeOptions = &$reduxOptions;
+        $optionName = $this->optionName;
+
+        global $$optionName;
+
+        $this->themeOptions = $$optionName;
     }
 
     public function getOption($name, $defaultValue = null)
