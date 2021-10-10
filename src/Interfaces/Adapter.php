@@ -7,7 +7,11 @@ interface Adapter
 
     public function getOption($name, $defaultValue = null);
 
-    public function addSection($sectionId, $sectionArgs);
+    public function createSections($options);
+
+    public function addSection($section);
 
     public function setArgs($args);
+
+    public function convertObjectToArgs($section, $mapFields);
 }

@@ -3,11 +3,23 @@ namespace Jankx\Option\Adapters;
 
 use Redux;
 use Jankx\Option\Abstracts\Adapter;
+use Jankx\Option\Specs\Options;
+use Jankx\Option\Specs\Section;
+use Jankx\Option\OptionsReader;
+use Jankx\Option\Framework;
 
 class ReduxFramework extends Adapter
 {
     protected $optionName;
     protected $themeOptions;
+
+    protected static $mapSectionFields = array(
+        'requiredSection' => 'require',
+    );
+    protected static $mapFieldProperties = array(
+        'requiredField' => 'require'
+    );
+
 
     protected function createOptionName()
     {
@@ -44,14 +56,24 @@ class ReduxFramework extends Adapter
         return Redux::setArgs($this->optionName, $args);
     }
 
-    public function addSection($sectionId, $sectionArgs)
+    public function addSection($section)
     {
+        if (!is_a($section, Section::class)) {
+            return;
+        }
+
         if (method_exists(Redux::class, 'set_section')) {
-            return Redux::set_section($sectionId, $sectionArgs);
+            return Redux::set_section(
+                $this->optionName,
+                $this->convertObjectToArgs($section, static::$mapSectionFields)
+            );
         }
 
         // Support old Redux version
-        return Redux::setSection($sectionId, $sectionArgs);
+        return Redux::setSection(
+            $this->optionName,
+            $this->convertObjectToArgs($section, static::$mapSectionFields)
+        );
     }
 
     public function register_admin_menu($menu_title, $display_name)
@@ -66,5 +88,14 @@ class ReduxFramework extends Adapter
             'page_priority'        => 60
         );
         $this->setArgs(apply_filters('jankx/opion/adapter/redux/args', $args));
+    }
+
+    public function createSections($options)
+    {
+        if (is_a($options, Options::class)) {
+            foreach ($options->getSections() as $section) {
+                $this->addSection($section);
+            }
+        }
     }
 }
