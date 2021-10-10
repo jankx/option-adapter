@@ -29,28 +29,22 @@ class ReduxFramework extends Adapter
         return static::$mapFieldProperties;
     }
 
-    protected function createOptionName()
+    public function prepare()
     {
         $this->optionName = apply_filters(
             'jankx_option_redux_framework_option_name',
-            get_template()
+            preg_replace(array(
+                '/[^\w|^_]/',
+                '/_{2,}/'
+            ), '_', get_template())
         );
-        return $this->optionName;
-    }
-
-    public function prepare()
-    {
-        $this->createOptionName();
-
-        $optionName = $this->optionName;
-
-        global $$optionName;
-
-        $this->themeOptions = $$optionName;
     }
 
     public function getOption($name, $defaultValue = null)
     {
+        if (is_null($this->themeOptions)) {
+            $this->themeOptions = get_option($this->optionName);
+        }
 
         if (isset($this->themeOptions[$name])) {
             return $this->themeOptions[$name];
