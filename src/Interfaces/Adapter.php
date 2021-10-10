@@ -13,5 +13,9 @@ interface Adapter
 
     public function setArgs($args);
 
-    public function convertObjectToArgs($section, $mapFields);
+    public function convertSectionToArgs($section);
+
+    public static function mapSectionFields();
+
+    public static function mapFieldProperties();
 }

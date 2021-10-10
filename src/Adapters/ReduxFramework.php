@@ -68,14 +68,14 @@ class ReduxFramework extends Adapter
         if (method_exists(Redux::class, 'set_section')) {
             return Redux::set_section(
                 $this->optionName,
-                $this->convertObjectToArgs($section, static::$mapSectionFields)
+                $this->convertSectionToArgs($section)
             );
         }
 
         // Support old Redux version
         return Redux::setSection(
             $this->optionName,
-            $this->convertObjectToArgs($section, static::$mapSectionFields)
+            $this->convertSectionToArgs($section)
         );
     }
 
@@ -100,5 +100,15 @@ class ReduxFramework extends Adapter
                 $this->addSection($section);
             }
         }
+    }
+
+    public static function mapSectionFields()
+    {
+        return static::$mapSectionFields;
+    }
+
+    public static function mapFieldProperties()
+    {
+        return static::$mapFieldProperties;
     }
 }

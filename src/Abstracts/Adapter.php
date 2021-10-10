@@ -7,41 +7,61 @@ use Jankx\Option\Interfaces\Adapter as AdapterInterface;
 
 abstract class Adapter implements AdapterInterface
 {
-    protected static $mapSectionFields = array();
-    protected static $mapFieldProperties = array();
-
-    protected function getSectionFields($fields)
+    public function convertFieldsToArgs($field)
     {
         $ret = array();
-        foreach ($fields as $field) {
-            $ret[] = $this->convertObjectToArgs(
-                $field,
-                static::$mapFieldProperties
+        $ref = new ReflectionObject($field);
+
+        $properties = $ref->getProperties(ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED);
+        $mappingFields = static::mapFieldProperties();
+
+        foreach ($properties as $property) {
+            $mapKey = isset($mappingFields[$property->getName()])
+                ? $mappingFields[$property->getName()]
+                : $property->getName();
+
+            $property->setAccessible(true);
+
+            $ret[$mapKey] = $this->getSectionArgs(
+                $property->getName(),
+                $property->getValue($field)
             );
+        }
+        if (empty($ret['props'])) {
+            return $ret;
+        }
+        
+        foreach ($ret['props'] as $prop => $value) {
+            $ret[$prop] = $value;
         }
         return $ret;
     }
 
-    protected function getSectionArgs($argName, $value)
+    public function getSectionArgs($argKey, $value)
     {
-        switch ($argName) {
+        switch ($argKey) {
             case 'fields':
-                return $this->getSectionFields($value);
+                $ret = array();
+                foreach ($value as $field) {
+                    $ret[] = $this->convertFieldsToArgs($field);
+                }
+                return $ret;
             default:
                 return $value;
         }
     }
 
-    public function convertObjectToArgs($section, $mapFields)
+    public function convertSectionToArgs($section)
     {
         $ret = array();
         $ref = new ReflectionObject($section);
 
         $properties = $ref->getProperties(ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED);
+        $mappingFields = static::mapSectionFields();
 
         foreach ($properties as $property) {
-            $mapKey = isset(static::$mapSectionFields[$property->getName()])
-                ? static::$mapSectionFields[$property->getName()]
+            $mapKey = isset($mappingFields[$property->getName()])
+                ? $mappingFields[$property->getName()]
                 : $property->getName();
 
             $property->setAccessible(true);
