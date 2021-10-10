@@ -5,8 +5,6 @@ use Redux;
 use Jankx\Option\Abstracts\Adapter;
 use Jankx\Option\Specs\Options;
 use Jankx\Option\Specs\Section;
-use Jankx\Option\OptionsReader;
-use Jankx\Option\Framework;
 
 class ReduxFramework extends Adapter
 {
@@ -20,6 +18,15 @@ class ReduxFramework extends Adapter
         'requiredField' => 'require'
     );
 
+    public static function mapSectionFields()
+    {
+        return static::$mapSectionFields;
+    }
+
+    public static function mapFieldProperties()
+    {
+        return static::$mapFieldProperties;
+    }
 
     protected function createOptionName()
     {
@@ -100,15 +107,5 @@ class ReduxFramework extends Adapter
                 $this->addSection($section);
             }
         }
-    }
-
-    public static function mapSectionFields()
-    {
-        return static::$mapSectionFields;
-    }
-
-    public static function mapFieldProperties()
-    {
-        return static::$mapFieldProperties;
     }
 }
