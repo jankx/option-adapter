@@ -20,4 +20,19 @@ use Jankx\Option\Abstracts\Adapter;
 
 class Kirki extends Adapter
 {
+    public function setArgs($args)
+    {
+    }
+
+    public function addSection($sectionId, $sectionArgs)
+    {
+    }
+
+    public function getOption($name, $defaultValue = null)
+    {
+    }
+
+    public function register_admin_menu($menu_title, $display_name)
+    {
+    }
 }

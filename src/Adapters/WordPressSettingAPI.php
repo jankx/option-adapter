@@ -10,6 +10,13 @@ class WordPressSettingAPI extends Adapter
         return get_option($name, $defaultValue);
     }
 
+    public function setArgs($args)
+    {
+    }
+
+    public function addSection($sectionId, $sectionArgs)
+    {
+    }
 
     public function register_admin_menu($menu_title, $display_name)
     {
