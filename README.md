@@ -36,7 +36,8 @@ return array(
   'title' => esc_html__('Section title'),
   'subtitle' => esc_html__('Section sub-title'),
   'desc' => esc_html__('The section decription'),
-  'icon' => 'fa-user'
+  'icon' => 'fa-user',
+  'priority' => 10, // Alias is `sort`
 );
 ```
 
@@ -51,7 +52,8 @@ return array(
   'desc' => esc_html__('Field description'),
   'hint' => array(
     'content' => 'This is a <b>hint</b> tool-tip for the text field.<br/><br/>Add any HTML based text you like here.',
-  )
+  ),
+  'priority' => 10, // Alias is `sort`
 );
 ```
 
@@ -75,7 +77,8 @@ return array(
       'type' => 'text',
       'title' => esc_html__('Field title 2'),
       'subtitle' => esc_html__('Field subtitle 2')
-      'desc' => esc_html__('Field description')
+      'desc' => esc_html__('Field description'),
+      'priority' => 10, // Alias is `sort`
     )
   )
 );
