@@ -90,7 +90,8 @@ class ReduxFramework extends Adapter
             'menu_title'           => $menu_title,
             'customizer'           => true,
             'display_version'      => $theme->get('Version'),
-            'page_priority'        => 60
+            'page_priority'        => 60,
+            'dev_mode'             => defined('WP_DEBUG') && WP_DEBUG,
         );
         $this->setArgs(apply_filters('jankx/opion/adapter/redux/args', $args));
     }
