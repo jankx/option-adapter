@@ -7,6 +7,11 @@ use Jankx\Option\Interfaces\Adapter as AdapterInterface;
 
 abstract class Adapter implements AdapterInterface
 {
+    public function prepare()
+    {
+        // Preparing before load framework
+    }
+
     public function convertFieldsToArgs($field)
     {
         $ret = array();

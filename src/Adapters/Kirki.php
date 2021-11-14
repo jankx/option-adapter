@@ -24,8 +24,18 @@ class Kirki extends Adapter
     {
     }
 
-    public function addSection($sectionId, $sectionArgs)
+    public function addSection($section)
     {
+    }
+
+    public static function mapSectionFields()
+    {
+        return [];
+    }
+
+    public static function mapFieldProperties()
+    {
+        return [];
     }
 
     public function getOption($name, $defaultValue = null)
@@ -34,5 +44,14 @@ class Kirki extends Adapter
 
     public function register_admin_menu($menu_title, $display_name)
     {
+    }
+
+    public function createSections($options)
+    {
+        if (is_a($options, Options::class)) {
+            foreach ($options->getSections() as $section) {
+                $this->addSection($section);
+            }
+        }
     }
 }
