@@ -54,7 +54,7 @@ class Framework
         return 'wordpress';
     }
 
-    public function loadFramework()
+    protected function getActiveMode()
     {
         if (static::$mode === 'auto') {
             $mode = $this->detectFramework();
@@ -64,7 +64,33 @@ class Framework
                 static::$mode = $mode;
             }
         }
+        return apply_filters('jankx/option/framework/active', static::$mode);
+    }
 
+    /**
+     * @return \Jankx\Option\Abstracts\Adapter
+     */
+    protected function setupFramework($frameworks)
+    {
+        $mode      = $this->getActiveMode();
+        if (!isset($frameworks[$mode])) {
+            return;
+        }
+
+        $framework = new $frameworks[$mode];
+
+        $framework->prepare();
+
+        do_action_ref_array('jankx/option/framework/setup', array(
+            &$framework,
+            static::$mode
+        ));
+
+        return $framework;
+    }
+
+    public function loadFramework()
+    {
         $frameworks = apply_filters('jankx_option_framework_modes', array(
             'Kirki'     => Kirki::class,
             'redux'     => ReduxFramework::class,
@@ -81,14 +107,7 @@ class Framework
 
         // Jankx option is not support override Framework to get good result
         if (is_null(static::$framework)) {
-            static::$framework = new $frameworks[static::$mode];
-
-            static::$framework->prepare();
-
-            do_action_ref_array('jankx_option_setup_framework', array(
-                &static::$framework,
-                static::$mode
-            ));
+            static::$framework = $this->setupFramework($frameworks);
         }
     }
 
