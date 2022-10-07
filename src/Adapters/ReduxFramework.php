@@ -55,6 +55,10 @@ class ReduxFramework extends Adapter
 
     public function setArgs($args)
     {
+        if (!class_exists(Redux::class)) {
+            return;
+        }
+
         if (method_exists(Redux::class, 'set_args')) {
             return Redux::set_args($this->optionName, $args);
         }
@@ -63,7 +67,7 @@ class ReduxFramework extends Adapter
 
     public function addSection($section)
     {
-        if (!is_a($section, Section::class)) {
+        if (!class_exists(Redux::class) || !is_a($section, Section::class)) {
             return;
         }
 
