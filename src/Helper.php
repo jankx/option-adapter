@@ -1,6 +1,8 @@
 <?php
 namespace Jankx\Option;
 
+use Jankx\Option\Interfaces\Adapter as InterfacesAdapter;
+
 final class Helper
 {
     public static function getOption($optionName, $defaultValue = null)
@@ -15,10 +17,10 @@ final class Helper
             return $defaultValue;
         }
 
-        if (!is_a($framework, Adapter::class)) {
+        if (!is_a($framework, InterfacesAdapter::class)) {
             throw new \Exception(sprintf(
                 'The option framework must be an instance of %s',
-                Adapter::class
+                InterfacesAdapter::class
             ));
         }
 
