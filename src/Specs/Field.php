@@ -1,5 +1,5 @@
 <?php
-namespace Jankx\Option\Specs;
+namespace Jankx\Adapter\Options\Specs;
 
 class Field
 {

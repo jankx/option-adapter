@@ -1,7 +1,7 @@
 <?php
-namespace Jankx\Option;
+namespace Jankx\Adapter\Options;
 
-use Jankx\Option\Interfaces\Adapter as InterfacesAdapter;
+use Jankx\Adapter\Options\Interfaces\Adapter as InterfacesAdapter;
 
 final class Helper
 {

@@ -1,5 +1,5 @@
 <?php
-namespace Jankx\Option\Interfaces;
+namespace Jankx\Adapter\Options\Interfaces;
 
 interface Adapter
 {

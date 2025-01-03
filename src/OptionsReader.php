@@ -1,7 +1,7 @@
 <?php
-namespace Jankx\Option;
+namespace Jankx\Adapter\Options;
 
-use Jankx\Option\Specs\Options;
+use Jankx\Adapter\Options\Specs\Options;
 
 class OptionsReader
 {

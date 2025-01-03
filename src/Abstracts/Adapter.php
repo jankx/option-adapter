@@ -3,7 +3,7 @@ namespace Jankx\Adapter\Options\Abstracts;
 
 use ReflectionObject;
 use ReflectionProperty;
-use Jankx\Option\Interfaces\Adapter as AdapterInterface;
+use Jankx\Adapter\Options\Interfaces\Adapter as AdapterInterface;
 
 abstract class Adapter implements AdapterInterface
 {

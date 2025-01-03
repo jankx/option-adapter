@@ -1,9 +1,9 @@
 <?php
-namespace Jankx\Adapter\Options;
+namespace Jankx\Adapter\Options\Frameworks;
 
 use Redux;
 use Jankx\Adapter\Options\Abstracts\Adapter;
-use Jankx\Option\Specs\Options;
+use Jankx\Adapter\Options\Specs\Options;
 use Jankx\Option\Specs\Section;
 
 class ReduxFramework extends Adapter

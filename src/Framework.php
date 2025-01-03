@@ -9,11 +9,11 @@
  * @subpackage option
  */
 
-namespace Jankx\Option;
+namespace Jankx\Adapter\Options;
 
 use Jankx\Adapter\Options\Kirki;
 use Jankx\Adapter\Options\ReduxFramework;
-use Jankx\Adapter\Options\WordPressSettingAPI;
+use Jankx\Adapter\Options\Frameworks\WordPressSettingAPI;
 use Jankx\Adapter\Options\WPZOOM;
 
 class Framework

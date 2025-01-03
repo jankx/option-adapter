@@ -1,7 +1,7 @@
 <?php
-namespace Jankx\Option\Specs;
+namespace Jankx\Adapter\Options\Specs;
 
-use Jankx\Option\Specs\Section;
+use Jankx\Adapter\Options\Specs\Section;
 
 class Options
 {

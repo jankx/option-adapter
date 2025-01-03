@@ -14,7 +14,7 @@
  * @link https://kirki.org/
  * @since 1.0.0
  */
-namespace Jankx\Adapter\Options;
+namespace Jankx\Adapter\Options\Frameworks;
 
 use Jankx\Adapter\Options\Abstracts\Adapter;
 
