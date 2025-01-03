@@ -1,5 +1,5 @@
 <?php
-namespace Jankx\Option\Abstracts;
+namespace Jankx\Adapter\Options\Abstracts;
 
 use ReflectionObject;
 use ReflectionProperty;

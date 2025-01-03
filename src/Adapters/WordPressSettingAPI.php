@@ -1,7 +1,7 @@
 <?php
-namespace Jankx\Option\Adapters;
+namespace Jankx\Adapter\Options;
 
-use Jankx\Option\Abstracts\Adapter;
+use Jankx\Adapter\Options\Abstracts\Adapter;
 
 class WordPressSettingAPI extends Adapter
 {

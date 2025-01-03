@@ -14,9 +14,9 @@
  * @link https://kirki.org/
  * @since 1.0.0
  */
-namespace Jankx\Option\Adapters;
+namespace Jankx\Adapter\Options;
 
-use Jankx\Option\Abstracts\Adapter;
+use Jankx\Adapter\Options\Abstracts\Adapter;
 
 class Kirki extends Adapter
 {

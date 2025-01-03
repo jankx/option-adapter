@@ -1,8 +1,8 @@
 <?php
-namespace Jankx\Option\Adapters;
+namespace Jankx\Adapter\Options;
 
 use Redux;
-use Jankx\Option\Abstracts\Adapter;
+use Jankx\Adapter\Options\Abstracts\Adapter;
 use Jankx\Option\Specs\Options;
 use Jankx\Option\Specs\Section;
 

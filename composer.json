@@ -1,6 +1,6 @@
 {
-  "name": "jankx/option",
-  "description": "Jankx options usable to create the theme, add-on options integrate with your loved option frameworks",
+  "name": "jankx/option-adapter",
+  "description": "Jankx option adapter for Jankx Framework, it integrate with your loved option frameworks",
   "type": "library",
   "license": "MIT",
   "minimum-stability": "dev",
@@ -13,7 +13,7 @@
   "require": {},
   "autoload": {
     "psr-4": {
-      "Jankx\\Option\\": "src/"
+      "Jankx\\Adapter\\Options\\": "src/"
     }
   },
   "version": "1.0.0"

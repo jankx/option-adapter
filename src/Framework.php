@@ -11,10 +11,10 @@
 
 namespace Jankx\Option;
 
-use Jankx\Option\Adapters\Kirki;
-use Jankx\Option\Adapters\ReduxFramework;
-use Jankx\Option\Adapters\WordPressSettingAPI;
-use Jankx\Option\Adapters\WPZOOM;
+use Jankx\Adapter\Options\Kirki;
+use Jankx\Adapter\Options\ReduxFramework;
+use Jankx\Adapter\Options\WordPressSettingAPI;
+use Jankx\Adapter\Options\WPZOOM;
 
 class Framework
 {
