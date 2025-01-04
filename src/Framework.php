@@ -15,6 +15,7 @@ use Jankx\Adapter\Options\Kirki;
 use Jankx\Adapter\Options\ReduxFramework;
 use Jankx\Adapter\Options\Frameworks\WordPressSettingAPI;
 use Jankx\Adapter\Options\WPZOOM;
+use Jankx\Dashboard\OptionFramework;
 
 class Framework
 {
@@ -45,6 +46,9 @@ class Framework
 
     protected function detectFramework()
     {
+        if (class_exists('\Jankx\Dashboard\OptionFramework')) {
+            return 'jankx';
+        }
         if (class_exists('Redux')) {
             return 'redux';
         }
@@ -59,13 +63,14 @@ class Framework
         if (static::$mode === 'auto') {
             $mode = $this->detectFramework();
 
-            if ($mode && $mode !== 'auto') {
+            if ($mode && !in_array($mode, ['auto', 'wordpress'])) {
                 update_option('jankx_option_framework', $mode);
                 static::$mode = $mode;
             }
         }
 
         $frameworks = apply_filters('jankx_option_framework_modes', array(
+            'jankx'     => OptionFramework::class,
             'Kirki'     => Kirki::class,
             'redux'     => ReduxFramework::class,
             'wordpress' => WordPressSettingAPI::class,
