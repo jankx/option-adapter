@@ -1,4 +1,5 @@
 <?php
+
 namespace Jankx\Adapter\Options;
 
 use Jankx\Adapter\Options\Interfaces\Adapter as InterfacesAdapter;

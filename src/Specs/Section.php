@@ -1,4 +1,5 @@
 <?php
+
 namespace Jankx\Option\Specs;
 
 use Jankx\Option\Specs\Field;

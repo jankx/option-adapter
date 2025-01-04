@@ -1,4 +1,5 @@
 <?php
+
 namespace Jankx\Adapter\Options\Specs;
 
 use Jankx\Adapter\Options\Specs\Section;

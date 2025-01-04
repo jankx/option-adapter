@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Jankx Option Adapter
  *
@@ -11,11 +12,10 @@
 
 namespace Jankx\Adapter\Options;
 
-use Jankx\Adapter\Options\Kirki;
-use Jankx\Adapter\Options\ReduxFramework;
+use Jankx\Adapter\Options\Frameworks\JankxOptionFramework;
+use Jankx\Adapter\Options\Frameworks\Kirki;
+use Jankx\Adapter\Options\Frameworks\ReduxFramework;
 use Jankx\Adapter\Options\Frameworks\WordPressSettingAPI;
-use Jankx\Adapter\Options\WPZOOM;
-use Jankx\Dashboard\OptionFramework;
 
 class Framework
 {
@@ -70,11 +70,10 @@ class Framework
         }
 
         $frameworks = apply_filters('jankx_option_framework_modes', array(
-            'jankx'     => OptionFramework::class,
+            'jankx'     => JankxOptionFramework::class,
             'Kirki'     => Kirki::class,
             'redux'     => ReduxFramework::class,
             'wordpress' => WordPressSettingAPI::class,
-            'zoom'      => WPZOOM::class,
         ));
 
         if (!isset($frameworks[static::$mode])) {
@@ -86,7 +85,7 @@ class Framework
 
         // Jankx option is not support override Framework to get good result
         if (is_null(static::$framework)) {
-            static::$framework = new $frameworks[static::$mode];
+            static::$framework = new $frameworks[static::$mode]();
 
             static::$framework->prepare();
 
@@ -97,6 +96,11 @@ class Framework
         }
     }
 
+    /**
+     * Return active option framework instance
+     *
+     * @return \Jankx\Adapter\Options\Interfaces\Adapter
+     */
     public static function getActiveFramework()
     {
         return static::$framework;

@@ -1,11 +1,14 @@
 <?php
+
 namespace Jankx\Adapter\Options\Frameworks;
 
 use Jankx\Adapter\Options\Abstracts\Adapter;
 use Jankx\Adapter\Options\Specs\Options;
 use Jankx\Dashboard\OptionFramework;
+use Jankx\GlobalConfigs;
 
-class JankxOptionFramework extends Adapter {
+class JankxOptionFramework extends Adapter
+{
     public function setArgs($args)
     {
     }
@@ -31,8 +34,15 @@ class JankxOptionFramework extends Adapter {
     public function register_admin_menu($menu_title, $display_name)
     {
         $themeInfo = wp_get_theme(get_template());
-        var_dump($themeInfo);die;
-        new OptionFramework('jankx_options', );
+        $optionName = class_exists(GlobalConfigs::class) ?  GlobalConfigs::get(
+            'theme.short_name',
+            $themeInfo->get('Name')
+        ) : $themeInfo->get('Name');
+        new OptionFramework(
+            'jankx_options',
+            $display_name,
+            $menu_title,
+        );
     }
 
     public function createSections($options)
