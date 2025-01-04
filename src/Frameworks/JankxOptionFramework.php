@@ -38,6 +38,7 @@ class JankxOptionFramework extends Adapter
             'theme.short_name',
             $themeInfo->get('Name')
         ) : $themeInfo->get('Name');
+
         new OptionFramework(
             'jankx_options',
             $display_name,
