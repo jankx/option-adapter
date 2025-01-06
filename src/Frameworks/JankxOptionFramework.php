@@ -4,19 +4,21 @@ namespace Jankx\Adapter\Options\Frameworks;
 
 use Jankx\Adapter\Options\Abstracts\Adapter;
 use Jankx\Adapter\Options\Specs\Options;
-
 use Jankx\Dashboard\Elements\Field;
 use Jankx\Dashboard\Elements\Section;
 use Jankx\Dashboard\Elements\Page;
 use Jankx\Dashboard\OptionFramework;
-
 use Jankx\GlobalConfigs;
 
 class JankxOptionFramework extends Adapter
 {
-    public function setArgs($args) {}
+    public function setArgs($args)
+    {
+    }
 
-    public function addSection($section) {}
+    public function addSection($section)
+    {
+    }
 
     public static function mapSectionFields()
     {
@@ -28,7 +30,9 @@ class JankxOptionFramework extends Adapter
         return [];
     }
 
-    public function getOption($name, $defaultValue = null) {}
+    public function getOption($name, $defaultValue = null)
+    {
+    }
 
     public function register_admin_menu($menu_title, $display_name)
     {
