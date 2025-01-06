@@ -10,7 +10,9 @@
       "email": "puleeno@gmail.com"
     }
   ],
-  "require": {},
+  "require": {
+   "jankx/dashboard-framework": "*"
+  },
   "autoload": {
     "psr-4": {
       "Jankx\\Adapter\\Options\\": "src/"
