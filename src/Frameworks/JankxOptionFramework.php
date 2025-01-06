@@ -3,12 +3,12 @@
 namespace Jankx\Adapter\Options\Frameworks;
 
 use Jankx\Adapter\Options\Abstracts\Adapter;
+use Jankx\Adapter\Options\OptionsReader;
 use Jankx\Adapter\Options\Specs\Options;
 use Jankx\Dashboard\Elements\Field;
 use Jankx\Dashboard\Elements\Section;
 use Jankx\Dashboard\Elements\Page;
 use Jankx\Dashboard\OptionFramework;
-use Jankx\GlobalConfigs;
 
 class JankxOptionFramework extends Adapter
 {
@@ -36,50 +36,42 @@ class JankxOptionFramework extends Adapter
 
     public function register_admin_menu($menu_title, $display_name)
     {
-        $themeInfo = wp_get_theme(get_template());
-        $optionName = class_exists(GlobalConfigs::class) ?  GlobalConfigs::get(
-            'theme.short_name',
-            $themeInfo->get('Name')
-        ) : $themeInfo->get('Name');
+        $optionsReader = OptionsReader::getInstance();
 
         // Tạo instance của OptionFramework
-        $optionsFramework = new OptionFramework(
+        $optionFramework = new OptionFramework(
             'jankx_options',
             $display_name,
             $menu_title,
         );
 
-        // Tạo page Cài Đặt Chung
-        $generalSettingsPage = new Page('Cài Đặt Chung');
-        $generalSettingsSection = new Section('Cài Đặt Chung');
-        $generalSettingsSection->addField(new Field('site_logo', 'Logo của Trang', 'input'));
-        $generalSettingsSection->addField(new Field('site_description', 'Mô Tả Trang', 'textarea'));
-        $generalSettingsPage->addSection($generalSettingsSection);
-        $optionsFramework->addPage($generalSettingsPage);
+        // Retrieve pages from the repository
+        $pages = $optionsReader->getPages();
 
-        // Tạo page Cài Đặt Màu Sắc
-        $colorSettingsPage = new Page('Cài Đặt Màu Sắc');
-        $colorSettingsSection = new Section('Cài Đặt Màu Sắc');
-        $colorSettingsSection->addField(new Field('color_scheme', 'Màu Sắc', 'select', [
-            'options' => [
-                'light' => 'Sáng',
-                'dark' => 'Tối'
-            ]
-        ]));
-        $colorSettingsPage->addSection($colorSettingsSection);
-        $optionsFramework->addPage($colorSettingsPage);
+        // Add pages, sections, and fields to the OptionFramework
+        foreach ($pages as $page) {
+            $dashboardPage = new Page($page->getTitle(), []);
 
-        // Tạo page Cài Đặt Tính Năng
-        $featureSettingsPage = new Page('Cài Đặt Tính Năng');
-        $featureSettingsSection = new Section('Cài Đặt Tính Năng');
-        $featureSettingsSection->addField(new Field('enable_feature_x', 'Kích Hoạt Tính Năng X', 'select', [
-            'options' => [
-                'yes' => 'Có',
-                'no' => 'Không'
-            ]
-        ]));
-        $featureSettingsPage->addSection($featureSettingsSection);
-        $optionsFramework->addPage($featureSettingsPage);
+            $sections = $optionsReader->getSections($page->getTitle());
+            foreach ($sections as $section) {
+                $dashboardSection = new Section($section->getTitle(), []);
+
+                $fields = $optionsReader->getFields($section->getTitle());
+                foreach ($fields as $field) {
+                    $dashboardField = new Field(
+                        $field->getId(),
+                        $field->getTitle(),
+                        $field->getType(),
+                        $field->getArgs()
+                    );
+                    $dashboardSection->addField($dashboardField);
+                }
+
+                $dashboardPage->addSection($dashboardSection);
+            }
+
+            $optionFramework->addPage($dashboardPage);
+        }
     }
 
     public function createSections($options)

@@ -2,17 +2,25 @@
 
 namespace Jankx\Adapter\Options;
 
-use Jankx\Adapter\Options\Specs\Options;
 use Jankx\Adapter\Options\Repositories\ConfigRepository;
 
 class OptionsReader
 {
+    protected static $instance = null;
     protected $sections = array();
     protected $configRepository;
 
-    public function __construct()
+    private function __construct()
     {
         $this->configRepository = new ConfigRepository();
+    }
+
+    public static function getInstance()
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
     }
 
     protected function getOptionsDirectoryPath()
