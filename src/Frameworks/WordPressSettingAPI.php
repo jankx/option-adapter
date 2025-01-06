@@ -34,12 +34,13 @@ class WordPressSettingAPI extends Adapter
         // add_menu_page($menu_title, $display_name, 'manage_options', 'jankx', null, null, 65);
     }
 
-    public function createSections($options)
+    /**
+     * Summary of createSections
+     * @param \Jankx\Adapter\Options\OptionsReader $optionsReader
+     *
+     * @return void
+     */
+    public function createSections($optionsReader)
     {
-        if (is_a($options, Options::class)) {
-            foreach ($options->getSections() as $section) {
-                $this->addSection($section);
-            }
-        }
     }
 }

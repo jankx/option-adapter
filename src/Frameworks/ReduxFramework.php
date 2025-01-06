@@ -101,12 +101,13 @@ class ReduxFramework extends Adapter
         $this->setArgs(apply_filters('jankx/opion/adapter/redux/args', $args));
     }
 
-    public function createSections($options)
+    /**
+     * Summary of createSections
+     * @param \Jankx\Adapter\Options\OptionsReader $optionsReader
+     *
+     * @return void
+     */
+    public function createSections($optionsReader)
     {
-        if (is_a($options, Options::class)) {
-            foreach ($options->getSections() as $section) {
-                $this->addSection($section);
-            }
-        }
     }
 }

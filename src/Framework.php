@@ -13,7 +13,7 @@
 namespace Jankx\Adapter\Options;
 
 use Jankx\Adapter\Options\Frameworks\JankxOptionFramework;
-use Jankx\Adapter\Options\Frameworks\Kirki;
+use Jankx\Adapter\Options\Frameworks\KirkiFramework;
 use Jankx\Adapter\Options\Frameworks\ReduxFramework;
 use Jankx\Adapter\Options\Frameworks\WordPressSettingAPI;
 
@@ -71,7 +71,7 @@ class Framework
 
         $frameworks = apply_filters('jankx_option_framework_modes', array(
             'jankx'     => JankxOptionFramework::class,
-            'Kirki'     => Kirki::class,
+            'kirki'     => KirkiFramework::class,
             'redux'     => ReduxFramework::class,
             'wordpress' => WordPressSettingAPI::class,
         ));

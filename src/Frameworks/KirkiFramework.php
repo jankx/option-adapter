@@ -20,7 +20,7 @@ namespace Jankx\Adapter\Options\Frameworks;
 
 use Jankx\Adapter\Options\Abstracts\Adapter;
 
-class Kirki extends Adapter
+class KirkiFramework extends Adapter
 {
     public function setArgs($args)
     {
@@ -48,12 +48,13 @@ class Kirki extends Adapter
     {
     }
 
-    public function createSections($options)
+    /**
+     * Summary of createSections
+     * @param \Jankx\Adapter\Options\OptionsReader $optionsReader
+     *
+     * @return void
+     */
+    public function createSections($optionsReader)
     {
-        if (is_a($options, Options::class)) {
-            foreach ($options->getSections() as $section) {
-                $this->addSection($section);
-            }
-        }
     }
 }

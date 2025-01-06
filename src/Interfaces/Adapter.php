@@ -8,7 +8,13 @@ interface Adapter
 
     public function getOption($name, $defaultValue = null);
 
-    public function createSections($options);
+    /**
+     * Summary of createSections
+     * @param \Jankx\Adapter\Options\OptionsReader $optionsReader
+     *
+     * @return void
+     */
+    public function createSections($optionsReader);
 
     public function addSection($section);
 
