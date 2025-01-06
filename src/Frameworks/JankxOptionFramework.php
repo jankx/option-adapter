@@ -12,6 +12,8 @@ use Jankx\Dashboard\OptionFramework;
 
 class JankxOptionFramework extends Adapter
 {
+    protected $framework;
+
     public function setArgs($args)
     {
     }
@@ -39,12 +41,21 @@ class JankxOptionFramework extends Adapter
         $optionsReader = OptionsReader::getInstance();
 
         // Tạo instance của OptionFramework
-        $optionFramework = new OptionFramework(
+        $this->framework = new OptionFramework(
             'jankx_options',
             $display_name,
             $menu_title,
         );
+    }
 
+    /**
+     * Summary of createSections
+     * @param \Jankx\Adapter\Options\OptionsReader $optionsReader
+     *
+     * @return void
+     */
+    public function createSections($optionsReader)
+    {
         // Retrieve pages from the repository
         $pages = $optionsReader->getPages();
 
@@ -70,16 +81,7 @@ class JankxOptionFramework extends Adapter
                 $dashboardPage->addSection($dashboardSection);
             }
 
-            $optionFramework->addPage($dashboardPage);
-        }
-    }
-
-    public function createSections($options)
-    {
-        if (is_a($options, Options::class)) {
-            foreach ($options->getSections() as $section) {
-                $this->addSection($section);
-            }
+            $this->framework->addPage($dashboardPage);
         }
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
 return [
-    'id' => 'section_item_1',
-    'name' => 'Section 1',
+    'id' => 'section_item_3',
+    'name' => 'Section 3',
     'description' => 'This is the first section of page 2',
     'fields' => [
         [

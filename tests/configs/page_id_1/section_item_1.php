@@ -8,7 +8,7 @@ return [
         [
             'id' => 'field_1',
             'name' => 'Field 1',
-            'type' => 'text',
+            'type' => 'textarea',
             'value' => 'Value 1',
             'default_value' => 'Default Value 1',
             'sub_title' => 'Subtitle 1',
@@ -17,8 +17,9 @@ return [
         [
             'id' => 'field_2',
             'name' => 'Field 2',
-            'type' => 'image',
+            'type' => 'select',
             'value' => 'Value 2',
+            'options' => [],
             'default_value' => 'Default Value 2',
             'sub_title' => 'Subtitle 2',
             'description' => 'Description for field 2',

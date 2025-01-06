@@ -36,6 +36,13 @@ final class Field implements FieldInterface
 
     public function getArgs()
     {
+        if ($this->type === 'select') {
+            return [
+                'options' => [
+                    $this->id
+                ]
+            ];
+        }
         return $this->args;
     }
 }
