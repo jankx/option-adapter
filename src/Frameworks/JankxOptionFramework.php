@@ -46,6 +46,24 @@ class JankxOptionFramework extends Adapter
             $display_name,
             $menu_title,
         );
+
+        $this->framework
+            ->setPageTitle($display_name)
+            ->setMenuText($menu_title)
+            ->setConfig([
+                'logo' => 'https://example.com/logo.png',
+                'version' => '2.0.0',
+                'description' => 'Configure your theme settings here',
+                'social_links' => [
+                'facebook' => 'https://facebook.com/mytheme',
+                'twitter' => 'https://twitter.com/mytheme',
+                'github' => 'https://github.com/mytheme'
+                ],
+                'support_url' => 'https://example.com/support',
+                'documentation_url' => 'https://example.com/docs',
+                'menu_position' => 59,
+                'menu_icon' => 'dashicons-admin-customizer'
+        ]);
     }
 
     /**
