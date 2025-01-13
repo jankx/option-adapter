@@ -8,7 +8,7 @@ return [
         [
             'id' => 'field_1',
             'name' => 'Field 1',
-            'type' => 'textarea',
+            'type' => 'text',
             'value' => 'Value 1',
             'default_value' => 'Default Value 1',
             'sub_title' => 'Subtitle 1',
