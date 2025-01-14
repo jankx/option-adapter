@@ -4,10 +4,10 @@ namespace Jankx\Adapter\Options\Frameworks;
 
 use Jankx\Adapter\Options\Abstracts\Adapter;
 use Jankx\Adapter\Options\OptionsReader;
-use Jankx\Adapter\Options\Specs\Options;
-use Jankx\Dashboard\Elements\Field;
-use Jankx\Dashboard\Elements\Section;
 use Jankx\Dashboard\Elements\Page;
+use Jankx\Dashboard\Elements\Section;
+use Jankx\Dashboard\Factories\FieldFactory;
+use Jankx\Dashboard\Interfaces\FieldInterface;
 use Jankx\Dashboard\OptionFramework;
 
 class JankxOptionFramework extends Adapter
@@ -87,13 +87,15 @@ class JankxOptionFramework extends Adapter
 
                 $fields = $optionsReader->getFields($section->getTitle());
                 foreach ($fields as $field) {
-                    $dashboardField = new Field(
+                    $dashboardField = FieldFactory::create(
                         $field->getId(),
                         $field->getTitle(),
                         $field->getType(),
                         $field->getArgs()
                     );
-                    $dashboardSection->addField($dashboardField);
+                    if ($dashboardField instanceof FieldInterface) {
+                        $dashboardSection->addField($dashboardField);
+                    }
                 }
 
                 $dashboardPage->addSection($dashboardSection);

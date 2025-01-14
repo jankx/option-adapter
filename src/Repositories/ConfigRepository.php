@@ -2,9 +2,9 @@
 
 namespace Jankx\Adapter\Options\Repositories;
 
-use Jankx\Dashboard\Elements\Field;
 use Jankx\Dashboard\Elements\Page;
 use Jankx\Dashboard\Elements\Section;
+use Jankx\Dashboard\Factories\FieldFactory;
 
 class ConfigRepository
 {
@@ -54,7 +54,7 @@ class ConfigRepository
 
     protected function makeField($config)
     {
-        return new Field($config['id'], $config['name'], $config['type'], [
+        return FieldFactory::create($config['id'], $config['name'], $config['type'], [
             'value' => $config['value'],
             'default_value' => $config['default_value'],
             'sub_title' => $config['sub_title'],
@@ -85,12 +85,25 @@ class ConfigRepository
         return $this->sections[$pageTitle] ?? [];
     }
 
-    public function addField($sectionTitle, Field $field)
+
+    /**
+     * Summary of addField
+     *
+     * @param mixed $sectionTitle
+     *
+     * @param \Jankx\Dashboard\Interfaces\FieldInterface $field
+     *
+     * @return void
+     */
+    public function addField($sectionTitle, $field)
     {
         if (!isset($this->fields[$sectionTitle])) {
             $this->fields[$sectionTitle] = [];
         }
-        $this->fields[$sectionTitle][$field->getId()] = $field;
+
+        if (!is_null($field)) {
+            $this->fields[$sectionTitle][$field->getId()] = $field;
+        }
     }
 
     public function getFields($sectionTitle)
