@@ -2,9 +2,9 @@
 
 namespace Jankx\Adapter\Options\Repositories;
 
-use Jankx\Adapter\Options\Concept\Page;
-use Jankx\Adapter\Options\Concept\Section;
-use Jankx\Adapter\Options\Concept\Field;
+use Jankx\Dashboard\Elements\Field;
+use Jankx\Dashboard\Elements\Page;
+use Jankx\Dashboard\Elements\Section;
 
 class ConfigRepository
 {
