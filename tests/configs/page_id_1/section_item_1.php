@@ -17,7 +17,7 @@ return [
         [
             'id' => 'field_2',
             'name' => 'Field 2',
-            'type' => 'select',
+            'type' => 'image',
             'value' => 'Value 2',
             'options' => [],
             'default_value' => 'Default Value 2',
