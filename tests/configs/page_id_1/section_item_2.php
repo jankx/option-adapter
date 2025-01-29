@@ -17,7 +17,7 @@ return [
         [
             'id' => 'field_4',
             'name' => 'Field 4',
-            'type' => 'textarea',
+            'type' => 'icon',
             'value' => 'Value 4',
             'default_value' => 'Default Value 4',
             'sub_title' => 'Subtitle 4',
