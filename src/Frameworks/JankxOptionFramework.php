@@ -34,6 +34,7 @@ class JankxOptionFramework extends Adapter
 
     public function getOption($name, $defaultValue = null)
     {
+        return $defaultValue;
     }
 
     public function register_admin_menu($menu_title, $display_name)
