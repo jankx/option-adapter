@@ -2,6 +2,10 @@
 
 namespace Jankx\Adapter\Options\Interfaces;
 
+if (!defined('ABSPATH')) {
+    exit('Cheatin huh?');
+}
+
 interface Adapter
 {
     public function register_admin_menu($menu_title, $display_name);

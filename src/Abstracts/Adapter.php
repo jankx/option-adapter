@@ -2,6 +2,10 @@
 
 namespace Jankx\Adapter\Options\Abstracts;
 
+if (!defined('ABSPATH')) {
+    exit('Cheatin huh?');
+}
+
 use ReflectionObject;
 use ReflectionProperty;
 use Jankx\Adapter\Options\Interfaces\Adapter as AdapterInterface;

@@ -2,6 +2,10 @@
 
 namespace Jankx\Option\Specs;
 
+if (!defined('ABSPATH')) {
+    exit('Cheatin huh?');
+}
+
 use Jankx\Option\Specs\Field;
 
 class Section

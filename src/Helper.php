@@ -2,6 +2,10 @@
 
 namespace Jankx\Adapter\Options;
 
+if (!defined('ABSPATH')) {
+    exit('Cheatin huh?');
+}
+
 use Jankx\Adapter\Options\Interfaces\Adapter as InterfacesAdapter;
 
 final class Helper

@@ -1,4 +1,7 @@
 <?php
+if (!defined('ABSPATH')) {
+    exit('Cheatin huh?');
+}
 
 return [
     'id' => 'section_item_2',

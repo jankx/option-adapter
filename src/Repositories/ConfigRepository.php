@@ -2,6 +2,10 @@
 
 namespace Jankx\Adapter\Options\Repositories;
 
+if (!defined('ABSPATH')) {
+    exit('Cheatin huh?');
+}
+
 use Jankx\Dashboard\Elements\Page;
 use Jankx\Dashboard\Elements\Section;
 use Jankx\Dashboard\Factories\FieldFactory;

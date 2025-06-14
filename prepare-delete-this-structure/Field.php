@@ -2,6 +2,10 @@
 
 namespace Jankx\Adapter\Options\Specs;
 
+if (!defined('ABSPATH')) {
+    exit('Cheatin huh?');
+}
+
 class Field
 {
     protected $id;

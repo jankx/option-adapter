@@ -2,6 +2,10 @@
 
 namespace Jankx\Adapter\Options;
 
+if (!defined('ABSPATH')) {
+    exit('Cheatin huh?');
+}
+
 use Jankx\Adapter\Options\Repositories\ConfigRepository;
 
 class OptionsReader

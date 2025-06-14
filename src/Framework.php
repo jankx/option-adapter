@@ -12,6 +12,10 @@
 
 namespace Jankx\Adapter\Options;
 
+if (!defined('ABSPATH')) {
+    exit('Cheatin huh?');
+}
+
 use Jankx\Adapter\Options\Frameworks\JankxOptionFramework;
 use Jankx\Adapter\Options\Frameworks\KirkiFramework;
 use Jankx\Adapter\Options\Frameworks\ReduxFramework;

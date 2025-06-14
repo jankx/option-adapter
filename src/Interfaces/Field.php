@@ -2,6 +2,10 @@
 
 namespace Jankx\Adapter\Options\Interfaces;
 
+if (!defined('ABSPATH')) {
+    exit('Cheatin huh?');
+}
+
 interface Field
 {
     public function getId();

@@ -2,6 +2,10 @@
 
 namespace Jankx\Adapter\Options\Frameworks;
 
+if (!defined('ABSPATH')) {
+    exit('Cheatin huh?');
+}
+
 use Jankx\Adapter\Options\Abstracts\Adapter;
 use Jankx\Adapter\Options\OptionsReader;
 use Jankx\Dashboard\Elements\Page;
