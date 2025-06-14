@@ -3,7 +3,7 @@
 namespace Jankx\Adapter\Options\Specs;
 
 if (!defined('ABSPATH')) {
-    exit('Cheatin huh?');
+    exit('Cheating huh?');
 }
 
 use Jankx\Adapter\Options\Specs\Section;

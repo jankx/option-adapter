@@ -3,7 +3,7 @@
 namespace Jankx\Adapter\Options\Frameworks;
 
 if (!defined('ABSPATH')) {
-    exit('Cheatin huh?');
+    exit('Cheating huh?');
 }
 
 use Redux;

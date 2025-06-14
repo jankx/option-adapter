@@ -3,7 +3,7 @@
 namespace Jankx\Option\Specs;
 
 if (!defined('ABSPATH')) {
-    exit('Cheatin huh?');
+    exit('Cheating huh?');
 }
 
 use Jankx\Option\Specs\Field;

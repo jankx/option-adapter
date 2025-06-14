@@ -3,7 +3,7 @@
 namespace Jankx\Adapter\Options\Interfaces;
 
 if (!defined('ABSPATH')) {
-    exit('Cheatin huh?');
+    exit('Cheating huh?');
 }
 
 interface Page

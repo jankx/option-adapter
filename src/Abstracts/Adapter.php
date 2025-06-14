@@ -3,7 +3,7 @@
 namespace Jankx\Adapter\Options\Abstracts;
 
 if (!defined('ABSPATH')) {
-    exit('Cheatin huh?');
+    exit('Cheating huh?');
 }
 
 use ReflectionObject;
