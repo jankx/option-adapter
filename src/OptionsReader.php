@@ -15,6 +15,7 @@ class OptionsReader
     protected $configRepository;
 
     protected $optionsDirectoryPath = null;
+    protected $childThemeOverrideEnabled = true;
 
     private function __construct()
     {
@@ -34,6 +35,10 @@ class OptionsReader
         $this->optionsDirectoryPath = $optionsDirectoryPath;
     }
 
+    public function setChildThemeOverrideEnabled($enabled)
+    {
+        $this->childThemeOverrideEnabled = $enabled;
+    }
 
     public function getOptionsDirectoryPath()
     {
@@ -45,6 +50,81 @@ class OptionsReader
             'jankx/option/directory/path',
             $this->optionsDirectoryPath
         );
+    }
+
+    /**
+     * Get all possible options directories with priority
+     *
+     * @return array
+     */
+    public function getOptionsDirectories()
+    {
+        $directories = [];
+
+        // Priority 1: Child theme (highest priority)
+        if ($this->childThemeOverrideEnabled && is_child_theme()) {
+            $childThemePath = get_stylesheet_directory() . '/includes/options';
+            if (is_dir($childThemePath)) {
+                $directories[] = $childThemePath;
+            }
+        }
+
+        // Priority 2: Parent theme
+        $parentThemePath = get_template_directory() . '/includes/options';
+        if (is_dir($parentThemePath)) {
+            $directories[] = $parentThemePath;
+        }
+
+        // Priority 3: Jankx framework default
+        $frameworkPath = sprintf('%s/includes/options', constant('JANKX_ABSPATH'));
+        if (is_dir($frameworkPath)) {
+            $directories[] = $frameworkPath;
+        }
+
+        // Priority 4: Fallback to tests configs
+        $fallbackPath = __DIR__ . '/../tests/configs';
+        if (is_dir($fallbackPath)) {
+            $directories[] = $fallbackPath;
+        }
+
+        return apply_filters('jankx/option/directories', $directories);
+    }
+
+    /**
+     * Find file in directories with priority
+     *
+     * @param string $relativePath
+     * @return string|null
+     */
+    public function findFileInDirectories($relativePath)
+    {
+        $directories = $this->getOptionsDirectories();
+
+        foreach ($directories as $directory) {
+            $filePath = $directory . '/' . $relativePath;
+            if (file_exists($filePath)) {
+                return $filePath;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Load configuration with child theme override support
+     *
+     * @param string $relativePath
+     * @return array|null
+     */
+    public function loadConfiguration($relativePath)
+    {
+        $filePath = $this->findFileInDirectories($relativePath);
+
+        if (!$filePath) {
+            return null;
+        }
+
+        return include $filePath;
     }
 
     public function getPages()

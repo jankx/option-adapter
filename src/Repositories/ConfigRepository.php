@@ -9,41 +9,79 @@ if (!defined('ABSPATH')) {
 use Jankx\Dashboard\Elements\Page;
 use Jankx\Dashboard\Elements\Section;
 use Jankx\Dashboard\Factories\FieldFactory;
+use Jankx\Adapter\Options\OptionsReader;
 
 class ConfigRepository
 {
     protected $pages = [];
     protected $sections = [];
     protected $fields = [];
+    protected $optionsReader;
 
     public function __construct()
     {
+        $this->optionsReader = OptionsReader::getInstance();
         $this->loadConfigurations();
     }
 
     protected function loadConfigurations()
     {
-        // Load pages configuration
-        $pagesConfig = include __DIR__ . '/../../tests/configs/pages.php';
+        // Load pages configuration with override support
+        $pagesConfig = $this->optionsReader->loadConfiguration('pages.php');
+
+        if (!$pagesConfig) {
+            // Fallback to tests configs if no custom config found
+            $pagesConfig = include __DIR__ . '/../../tests/configs/pages.php';
+        }
 
         foreach ($pagesConfig as $pageConfig) {
             $page = $this->makePage($pageConfig);
             $this->addPage($page);
 
-            // Load sections for each page
-            $sectionsPath = __DIR__ . '/../../tests/configs/' . $pageConfig['id'];
-            foreach (glob($sectionsPath . '/*.php') as $sectionFile) {
-                $sectionConfig = include $sectionFile;
-                $section = $this->makeSection($sectionConfig);
-                $this->addSection($page->getTitle(), $section);
+            // Load sections for each page with override support
+            $this->loadPageSections($pageConfig);
+        }
+    }
 
-                // Add fields to section
+    protected function loadPageSections($pageConfig)
+    {
+        $pageId = $pageConfig['id'];
+        $pageTitle = $pageConfig['name'];
+
+        // Get all possible section files for this page
+        $sectionFiles = $this->findSectionFiles($pageId);
+
+        foreach ($sectionFiles as $sectionFile) {
+            $sectionConfig = include $sectionFile;
+            $section = $this->makeSection($sectionConfig);
+            $this->addSection($pageTitle, $section);
+
+            // Add fields to section
+            if (isset($sectionConfig['fields'])) {
                 foreach ($sectionConfig['fields'] as $fieldConfig) {
                     $field = $this->makeField($fieldConfig);
                     $this->addField($section->getTitle(), $field);
                 }
             }
         }
+    }
+
+    protected function findSectionFiles($pageId)
+    {
+        $sectionFiles = [];
+        $directories = $this->optionsReader->getOptionsDirectories();
+
+        foreach ($directories as $directory) {
+            $pagePath = $directory . '/' . $pageId;
+            if (is_dir($pagePath)) {
+                $files = glob($pagePath . '/*.php');
+                foreach ($files as $file) {
+                    $sectionFiles[] = $file;
+                }
+            }
+        }
+
+        return $sectionFiles;
     }
 
     protected function makePage($config)
@@ -88,7 +126,6 @@ class ConfigRepository
     {
         return $this->sections[$pageTitle] ?? [];
     }
-
 
     /**
      * Summary of addField
