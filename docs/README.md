@@ -171,13 +171,13 @@ $framework->setFrameworkFromExternal('redux');
 
 ```php
 // Lấy option value
-$siteTitle = jankx_get_option('site_title', 'default_value');
+$siteTitle = \Jankx\Adapter\Options\Helper::getOption('site_title', 'default_value');
 
 // Set option value
-jankx_set_option('site_title', 'New Site Title');
+\Jankx\Adapter\Options\Helper::setOption('site_title', 'New Site Title');
 
 // Check option exists
-if (jankx_has_option('site_logo')) {
+if (\Jankx\Adapter\Options\Helper::hasOption('site_logo')) {
     // Do something
 }
 ```

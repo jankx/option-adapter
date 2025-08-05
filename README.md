@@ -8,8 +8,8 @@ Jankx Option Adapter là một hệ thống thông minh cho phép Jankx Framewor
 
 ```mermaid
 graph TD
-    A[Framework.php] --> B[getInstance]
-    B --> C[Singleton Instance]
+    A[Jankx Framework] --> B[Framework.php]
+    B --> C[getInstance]
     C --> D[loadFramework]
     D --> E[Check External Config]
     E -->|Yes| F[Use External Framework]
@@ -579,6 +579,48 @@ graph TD
 - **{page}/sections.php** - Define sections for each page
 - **{page}/fields.php** - Define fields for each section
 
+## 🚀 Rules & Requirements
+
+### **Rule 1: Call Flow 1 Chiều**
+- ✅ **Jankx Framework → option-adapter**: Chỉ có 1 chiều
+- ✅ **Không có chiều ngược lại**: option-adapter không gọi lại Jankx Framework
+- ✅ **Public Interface**: Chỉ expose các methods cần thiết
+
+### **Rule 2: Menu Title Registration**
+- ✅ **Adapter Interface**: Tất cả adapters phải implement `register_admin_menu()`
+- ✅ **Framework Detection**: Tự động detect và load framework
+- ✅ **Menu Configuration**: Set menu title, position, icon qua adapter
+
+### **Rule 3: Modify option-adapter**
+- ✅ **Flexible Architecture**: Có thể modify option-adapter
+- ✅ **Extensible Design**: Dễ dàng thêm features mới
+- ✅ **Backward Compatibility**: Không break existing functionality
+
+### **Rule 4: Child Theme Override Support**
+- ✅ **Directory Priority**: Child → Parent → Framework → Fallback
+- ✅ **File Override**: Child theme có thể override từng file
+- ✅ **Configuration Merge**: Preserve parent config nếu child không override
+
+### **Rule 5: Standard Data Structure**
+- ✅ **Format Chuẩn**: Theo cấu trúc từ `tests/configs/`
+- ✅ **Field Properties**: Standard field properties
+- ✅ **Security Checks**: ABSPATH check trong tất cả files
+
+### **Rule 6: WordPress Native Field Support**
+- ✅ **Direct Integration**: Fields có thể thao tác trực tiếp với WordPress
+- ✅ **Action Hooks**: Support actions để chỉnh sửa WordPress data
+- ✅ **Automatic Sync**: Tự động sync với WordPress options
+
+### **Rule 7: Service Provider Integration**
+- ✅ **ThemeOptionsServiceProvider**: Tạo theme options qua service provider
+- ✅ **Dependency Injection**: Sử dụng Application container
+- ✅ **Lifecycle Management**: Proper register/boot phases
+
+### **Rule 8: Textdomain Loading Order**
+- ✅ **After Textdomain**: Theme options load sau khi setup textdomain
+- ✅ **Translation Support**: Tất cả text strings được translate
+- ✅ **Hook Priority**: Proper WordPress hook priorities
+
 ## Benefits
 
 ### **1. Flexibility**
@@ -600,6 +642,11 @@ graph TD
 - ✅ Lazy loading
 - ✅ Caching mechanisms
 - ✅ Efficient detection
+
+### **5. Internationalization**
+- ✅ Translation support
+- ✅ RTL language support
+- ✅ WordPress standards compliance
 
 ## Usage Examples
 
@@ -638,6 +685,30 @@ $optionFramework->loadFramework();
 // Framework sẽ tự động load từ config
 ```
 
+### **Cách 4: Service Provider (Recommended)**
+```php
+// app/Providers/ThemeOptionsServiceProvider.php
+class ThemeOptionsServiceProvider extends ServiceProvider
+{
+    public function register(Application $app)
+    {
+        // Register option-adapter services
+    }
+
+    public function boot(Application $app)
+    {
+        // Boot theme options after textdomain
+        add_action('after_setup_theme', [$this, 'bootThemeOptions'], 20);
+    }
+}
+
+// config/providers.php
+'admin' => [
+    Jankx\Support\Providers\TranslationServiceProvider::class,
+    \App\Providers\ThemeOptionsServiceProvider::class,
+],
+```
+
 ## Supported Frameworks
 
 ### **1. Jankx Dashboard Framework**
@@ -667,6 +738,68 @@ $optionFramework->loadFramework();
 2. Redux Framework (nếu có)
 3. Kirki Framework (nếu có)
 4. WordPress Settings API (fallback)
+```
+
+## Child Theme Override
+
+### **Directory Priority System**
+```
+1. Child Theme: get_stylesheet_directory() . '/includes/options/'
+2. Parent Theme: get_template_directory() . '/includes/options/'
+3. Framework: JANKX_ABSPATH . '/includes/options/'
+4. Fallback: option-adapter/tests/configs/
+```
+
+### **Override Examples**
+```php
+// Child theme: includes/options/pages.php
+return [
+    [
+        'id' => 'general',
+        'name' => 'General Settings (Custom)',
+        'args' => [
+            'description' => 'Customized general settings',
+        ],
+    ],
+];
+
+// Child theme: includes/options/general/site_info.php
+return [
+    'id' => 'site_info',
+    'name' => 'Site Information (Custom)',
+    'fields' => [
+        [
+            'id' => 'site_title',
+            'name' => 'Site Title',
+            'type' => 'text',
+            'default_value' => 'My Custom Website',
+        ],
+    ],
+];
+```
+
+## WordPress Native Fields
+
+### **Supported Native Fields**
+- `blogname` - Site Title
+- `blogdescription` - Tagline
+- `siteurl` - Site URL
+- `home` - Home URL
+- `date_format` - Date Format
+- `time_format` - Time Format
+- `timezone_string` - Timezone
+
+### **Configuration Example**
+```php
+[
+    'id' => 'site_title',
+    'name' => 'Site Title',
+    'type' => 'text',
+    'wordpress_native' => true,
+    'option_name' => 'blogname',
+    'default_value' => get_option('blogname'),
+    'description' => 'This will update WordPress Site Title',
+]
 ```
 
 ---
