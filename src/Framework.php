@@ -26,6 +26,7 @@ class Framework
     protected static $instance;
     protected static $framework;
     protected static $mode = 'auto';
+    protected static $configFramework = null;
 
     public static function getInstance()
     {
@@ -43,9 +44,41 @@ class Framework
         }
     }
 
+    /**
+     * Set framework mode from external (Jankx Framework)
+     *
+     * @param string $framework
+     * @return void
+     */
+    public static function setFrameworkFromExternal($framework)
+    {
+        static::$configFramework = $framework;
+    }
+
     public function setMode($mode)
     {
         static::$mode = $mode;
+    }
+
+    /**
+     * Get framework from external config or WordPress option
+     *
+     * @return string|null
+     */
+    protected function getFrameworkFromConfig()
+    {
+        // Priority 1: External config (set by Jankx Framework)
+        if (static::$configFramework !== null) {
+            return static::$configFramework;
+        }
+
+        // Priority 2: WordPress option (backward compatibility)
+        $framework = get_option('jankx_option_framework');
+        if (!empty($framework)) {
+            return $framework;
+        }
+
+        return null;
     }
 
     protected function detectFramework()
@@ -64,12 +97,20 @@ class Framework
 
     public function loadFramework()
     {
+        // First, try to get framework from config
         if (static::$mode === 'auto') {
-            $mode = $this->detectFramework();
+            $configFramework = $this->getFrameworkFromConfig();
 
-            if ($mode && !in_array($mode, ['auto', 'wordpress'])) {
-                update_option('jankx_option_framework', $mode);
-                static::$mode = $mode;
+            if ($configFramework) {
+                static::$mode = $configFramework;
+            } else {
+                // Fallback to auto-detection if no config found
+                $mode = $this->detectFramework();
+
+                if ($mode && !in_array($mode, ['auto', 'wordpress'])) {
+                    update_option('jankx_option_framework', $mode);
+                    static::$mode = $mode;
+                }
             }
         }
 
@@ -108,5 +149,15 @@ class Framework
     public static function getActiveFramework()
     {
         return static::$framework;
+    }
+
+    /**
+     * Get current framework mode
+     *
+     * @return string
+     */
+    public static function getCurrentMode()
+    {
+        return static::$mode;
     }
 }
