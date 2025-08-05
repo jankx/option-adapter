@@ -29,6 +29,12 @@ class OptionsReader
         return self::$instance;
     }
 
+    protected function setOptionsDirectoryPath($optionsDirectoryPath)
+    {
+        $this->optionsDirectoryPath = $optionsDirectoryPath;
+    }
+
+
     protected function getOptionsDirectoryPath()
     {
         if (is_null($this->optionsDirectoryPath)) {
