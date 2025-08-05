@@ -14,6 +14,8 @@ class OptionsReader
     protected $sections = array();
     protected $configRepository;
 
+    protected $optionsDirectoryPath = null;
+
     private function __construct()
     {
         $this->configRepository = new ConfigRepository();
@@ -29,9 +31,13 @@ class OptionsReader
 
     protected function getOptionsDirectoryPath()
     {
+        if (is_null($this->optionsDirectoryPath)) {
+            $this->optionsDirectoryPath = sprintf('%s/includes/options', constant('JANKX_ABSPATH'));
+        }
+
         return apply_filters(
             'jankx/option/directory/path',
-            sprintf('%s/includes/options', constant('JANKX_ABSPATH'))
+            $this->optionsDirectoryPath
         );
     }
 
