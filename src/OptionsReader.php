@@ -29,13 +29,13 @@ class OptionsReader
         return self::$instance;
     }
 
-    protected function setOptionsDirectoryPath($optionsDirectoryPath)
+    public function setOptionsDirectoryPath($optionsDirectoryPath)
     {
         $this->optionsDirectoryPath = $optionsDirectoryPath;
     }
 
 
-    protected function getOptionsDirectoryPath()
+    public function getOptionsDirectoryPath()
     {
         if (is_null($this->optionsDirectoryPath)) {
             $this->optionsDirectoryPath = sprintf('%s/includes/options', constant('JANKX_ABSPATH'));
