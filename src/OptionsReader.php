@@ -127,6 +127,114 @@ class OptionsReader
         return include $filePath;
     }
 
+    /**
+     * Get all page directories from options directories
+     *
+     * @return array
+     */
+    public function getPageDirectories()
+    {
+        $pageDirectories = [];
+        $directories = $this->getOptionsDirectories();
+
+        foreach ($directories as $directory) {
+            if (is_dir($directory)) {
+                $subdirs = glob($directory . '/*', GLOB_ONLYDIR);
+                foreach ($subdirs as $subdir) {
+                    $pageDirectories[] = $subdir;
+                }
+            }
+        }
+
+        return array_unique($pageDirectories);
+    }
+
+    /**
+     * Get all PHP files from a specific directory
+     *
+     * @param string $directory
+     * @return array
+     */
+    public function getPhpFilesFromDirectory($directory)
+    {
+        $files = [];
+
+        if (is_dir($directory)) {
+            $phpFiles = glob($directory . '/*.php');
+            foreach ($phpFiles as $file) {
+                $files[] = $file;
+            }
+        }
+
+        return $files;
+    }
+
+    /**
+     * Load all configurations from options directories
+     *
+     * @return array
+     */
+    public function loadAllConfigurations()
+    {
+        $configurations = [];
+        $pageDirectories = $this->getPageDirectories();
+
+        foreach ($pageDirectories as $pageDir) {
+            $pageName = basename($pageDir);
+            $configurations[$pageName] = [];
+
+            $phpFiles = $this->getPhpFilesFromDirectory($pageDir);
+            foreach ($phpFiles as $file) {
+                $sectionName = basename($file, '.php');
+                $configurations[$pageName][$sectionName] = include $file;
+            }
+        }
+
+        return $configurations;
+    }
+
+    /**
+     * Get pages configuration
+     *
+     * @return array
+     */
+    public function getPagesConfig()
+    {
+        $pagesConfig = $this->loadConfiguration('pages.php');
+
+        if (!$pagesConfig) {
+            // Fallback to tests configs if no custom config found
+            $pagesConfig = include __DIR__ . '/../tests/configs/pages.php';
+        }
+
+        return $pagesConfig;
+    }
+
+    /**
+     * Get sections for a specific page
+     *
+     * @param string $pageId
+     * @return array
+     */
+    public function getSectionsForPage($pageId)
+    {
+        $sections = [];
+        $directories = $this->getOptionsDirectories();
+
+        foreach ($directories as $directory) {
+            $pagePath = $directory . '/' . $pageId;
+            if (is_dir($pagePath)) {
+                $phpFiles = glob($pagePath . '/*.php');
+                foreach ($phpFiles as $file) {
+                    $sectionName = basename($file, '.php');
+                    $sections[$sectionName] = include $file;
+                }
+            }
+        }
+
+        return $sections;
+    }
+
     public function getPages()
     {
         return $this->configRepository->getPages();

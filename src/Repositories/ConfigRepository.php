@@ -27,12 +27,7 @@ class ConfigRepository
     protected function loadConfigurations()
     {
         // Load pages configuration with override support
-        $pagesConfig = $this->optionsReader->loadConfiguration('pages.php');
-
-        if (!$pagesConfig) {
-            // Fallback to tests configs if no custom config found
-            $pagesConfig = include __DIR__ . '/../../tests/configs/pages.php';
-        }
+        $pagesConfig = $this->optionsReader->getPagesConfig();
 
         foreach ($pagesConfig as $pageConfig) {
             $page = $this->makePage($pageConfig);
@@ -48,11 +43,10 @@ class ConfigRepository
         $pageId = $pageConfig['id'];
         $pageTitle = $pageConfig['name'];
 
-        // Get all possible section files for this page
-        $sectionFiles = $this->findSectionFiles($pageId);
+        // Get all sections for this page from all possible directories
+        $sectionsConfig = $this->optionsReader->getSectionsForPage($pageId);
 
-        foreach ($sectionFiles as $sectionFile) {
-            $sectionConfig = include $sectionFile;
+        foreach ($sectionsConfig as $sectionName => $sectionConfig) {
             $section = $this->makeSection($sectionConfig);
             $this->addSection($pageTitle, $section);
 
@@ -64,24 +58,6 @@ class ConfigRepository
                 }
             }
         }
-    }
-
-    protected function findSectionFiles($pageId)
-    {
-        $sectionFiles = [];
-        $directories = $this->optionsReader->getOptionsDirectories();
-
-        foreach ($directories as $directory) {
-            $pagePath = $directory . '/' . $pageId;
-            if (is_dir($pagePath)) {
-                $files = glob($pagePath . '/*.php');
-                foreach ($files as $file) {
-                    $sectionFiles[] = $file;
-                }
-            }
-        }
-
-        return $sectionFiles;
     }
 
     protected function makePage($config)
@@ -96,12 +72,107 @@ class ConfigRepository
 
     protected function makeField($config)
     {
-        return FieldFactory::create($config['id'], $config['name'], $config['type'], [
-            'value' => $config['value'],
-            'default_value' => $config['default_value'],
-            'sub_title' => $config['sub_title'],
-            'description' => $config['description'],
-        ]);
+        $args = [];
+
+        // Map Redux field properties to Dashboard field args
+        if (isset($config['value'])) {
+            $args['default'] = $config['value'];
+        }
+        if (isset($config['default_value'])) {
+            $args['default'] = $config['default_value'];
+        }
+        if (isset($config['sub_title'])) {
+            $args['subtitle'] = $config['sub_title'];
+        }
+        if (isset($config['description'])) {
+            $args['description'] = $config['description'];
+        }
+        if (isset($config['options'])) {
+            $args['options'] = $config['options'];
+        }
+        if (isset($config['min'])) {
+            $args['min'] = $config['min'];
+        }
+        if (isset($config['max'])) {
+            $args['max'] = $config['max'];
+        }
+        if (isset($config['step'])) {
+            $args['step'] = $config['step'];
+        }
+        if (isset($config['on'])) {
+            $args['on'] = $config['on'];
+        }
+        if (isset($config['off'])) {
+            $args['off'] = $config['off'];
+        }
+        if (isset($config['transparent'])) {
+            $args['transparent'] = $config['transparent'];
+        }
+        if (isset($config['alpha'])) {
+            $args['alpha'] = $config['alpha'];
+        }
+        if (isset($config['google'])) {
+            $args['google'] = $config['google'];
+        }
+        if (isset($config['font-family'])) {
+            $args['font-family'] = $config['font-family'];
+        }
+        if (isset($config['font-size'])) {
+            $args['font-size'] = $config['font-size'];
+        }
+        if (isset($config['font-weight'])) {
+            $args['font-weight'] = $config['font-weight'];
+        }
+        if (isset($config['line-height'])) {
+            $args['line-height'] = $config['line-height'];
+        }
+        if (isset($config['color'])) {
+            $args['color'] = $config['color'];
+        }
+        if (isset($config['background-color'])) {
+            $args['background-color'] = $config['background-color'];
+        }
+        if (isset($config['background-image'])) {
+            $args['background-image'] = $config['background-image'];
+        }
+        if (isset($config['background-repeat'])) {
+            $args['background-repeat'] = $config['background-repeat'];
+        }
+        if (isset($config['background-position'])) {
+            $args['background-position'] = $config['background-position'];
+        }
+        if (isset($config['background-size'])) {
+            $args['background-size'] = $config['background-size'];
+        }
+        if (isset($config['mode'])) {
+            $args['mode'] = $config['mode'];
+        }
+        if (isset($config['units'])) {
+            $args['units'] = $config['units'];
+        }
+        if (isset($config['top'])) {
+            $args['top'] = $config['top'];
+        }
+        if (isset($config['right'])) {
+            $args['right'] = $config['right'];
+        }
+        if (isset($config['bottom'])) {
+            $args['bottom'] = $config['bottom'];
+        }
+        if (isset($config['left'])) {
+            $args['left'] = $config['left'];
+        }
+        if (isset($config['display_value'])) {
+            $args['display_value'] = $config['display_value'];
+        }
+        if (isset($config['resolution'])) {
+            $args['resolution'] = $config['resolution'];
+        }
+        if (isset($config['layout'])) {
+            $args['layout'] = $config['layout'];
+        }
+
+        return FieldFactory::create($config['id'], $config['name'], $config['type'], $args);
     }
 
     public function addPage(Page $page)
