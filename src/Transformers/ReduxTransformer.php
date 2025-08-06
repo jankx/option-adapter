@@ -404,13 +404,11 @@ class ReduxTransformer
 
             // Get sections for this page
             $sections = $optionsReader->getSections($page->getTitle());
-            error_log('[JANKX DEBUG] ReduxTransformer: Page "' . $page->getTitle() . '" has ' . count($sections) . ' sections');
 
             // Merge all fields from all sections into one section
             foreach ($sections as $section) {
                 // Get fields for this section
                 $fields = $optionsReader->getFields($section->getTitle());
-                error_log('[JANKX DEBUG] ReduxTransformer: Section "' . $section->getTitle() . '" has ' . count($fields) . ' fields');
 
                 // Transform each field and add to the section
                 foreach ($fields as $field) {
@@ -420,10 +418,8 @@ class ReduxTransformer
             }
 
             $reduxData['sections'][] = $reduxSection;
-            error_log('[JANKX DEBUG] ReduxTransformer: Final section "' . $page->getTitle() . '" has ' . count($reduxSection['fields']) . ' fields');
         }
 
-        error_log('[JANKX DEBUG] ReduxTransformer: Transformation completed with ' . count($reduxData['sections']) . ' sections');
         return $reduxData;
     }
 

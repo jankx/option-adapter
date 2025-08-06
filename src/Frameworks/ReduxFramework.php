@@ -133,7 +133,7 @@ class ReduxFramework extends Adapter
             'page_slug'            => $this->optionName, // Set page slug
         );
 
-        error_log('[JANKX DEBUG] ReduxFramework: Initializing Redux with args: ' . json_encode($args));
+
 
                 // Initialize Redux using constructor
         $this->reduxInstance = new Redux($this->optionName, $args);
@@ -146,7 +146,7 @@ class ReduxFramework extends Adapter
         // Store args for later use
         $this->setArgs(apply_filters('jankx/opion/adapter/redux/args', $args));
 
-        error_log('[JANKX DEBUG] ReduxFramework: Redux initialized successfully');
+
 
         // Force Redux to create the menu immediately
         if (method_exists(Redux::class, 'init')) {
@@ -165,7 +165,7 @@ class ReduxFramework extends Adapter
         add_action('admin_init', function() {
             if (method_exists(Redux::class, 'init')) {
                 Redux::init($this->optionName);
-                error_log('[JANKX DEBUG] ReduxFramework: Redux menu created via admin_init hook');
+
             }
         });
 
@@ -192,15 +192,12 @@ class ReduxFramework extends Adapter
         }
 
         // Log transformer being used
-        error_log('[JANKX DEBUG] ReduxFramework: Using ReduxTransformer');
+
 
         // Transform OptionsReader data to Redux format
         $reduxData = ReduxTransformer::transformOptionsReader($optionsReader, $this);
-        error_log('[JANKX DEBUG] ReduxFramework: Adding ' . count($reduxData['sections']) . ' sections to Redux');
-
         // Add sections to Redux
         foreach ($reduxData['sections'] as $section) {
-            error_log('[JANKX DEBUG] ReduxFramework: Adding section: ' . ($section['title'] ?? 'Unknown'));
 
             if ($this->reduxInstance) {
                 $this->reduxInstance->setSection($section);
@@ -214,12 +211,12 @@ class ReduxFramework extends Adapter
             }
         }
 
-        error_log('[JANKX DEBUG] ReduxFramework: All sections added successfully');
+
 
         // Force Redux to create the menu after adding sections
         if (method_exists(Redux::class, 'init')) {
             Redux::init($this->optionName);
-            error_log('[JANKX DEBUG] ReduxFramework: Forced Redux init after adding sections');
+
         }
     }
 
@@ -252,7 +249,7 @@ class ReduxFramework extends Adapter
         ];
 
         $mappedIcon = isset($iconMap[$dashicon]) ? $iconMap[$dashicon] : 'el el-cog';
-        error_log('[JANKX DEBUG] ReduxFramework: Mapping icon "' . $dashicon . '" to "' . $mappedIcon . '"');
+
 
         return $mappedIcon;
     }
