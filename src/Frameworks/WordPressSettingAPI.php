@@ -44,7 +44,17 @@ class WordPressSettingAPI extends Adapter
      *
      * @return void
      */
-    public function createSections($optionsReader)
+        public function createSections($optionsReader)
     {
+        // Log transformer being used
+        error_log('[JANKX DEBUG] WordPressSettingAPI: Using WordPressTransformer');
+
+        // Transform OptionsReader data to WordPress Settings API format
+        $wordpressData = \Jankx\Adapter\Options\Transformers\WordPressTransformer::transformOptionsReader($optionsReader);
+
+        // Add pages to WordPress Settings API
+        foreach ($wordpressData['pages'] as $page) {
+            $this->addSection($page);
+        }
     }
 }

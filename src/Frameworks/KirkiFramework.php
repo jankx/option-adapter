@@ -58,7 +58,17 @@ class KirkiFramework extends Adapter
      *
      * @return void
      */
-    public function createSections($optionsReader)
+        public function createSections($optionsReader)
     {
+        // Log transformer being used
+        error_log('[JANKX DEBUG] KirkiFramework: Using KirkiTransformer');
+
+        // Transform OptionsReader data to Kirki format
+        $kirkiData = \Jankx\Adapter\Options\Transformers\KirkiTransformer::transformOptionsReader($optionsReader);
+
+        // Add sections to Kirki
+        foreach ($kirkiData['sections'] as $section) {
+            $this->addSection($section);
+        }
     }
 }

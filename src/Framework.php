@@ -20,6 +20,7 @@ use Jankx\Adapter\Options\Frameworks\JankxOptionFramework;
 use Jankx\Adapter\Options\Frameworks\KirkiFramework;
 use Jankx\Adapter\Options\Frameworks\ReduxFramework;
 use Jankx\Adapter\Options\Frameworks\WordPressSettingAPI;
+use Jankx\Adapter\Options\Frameworks\CustomizeFramework;
 
 class Framework
 {
@@ -83,33 +84,55 @@ class Framework
 
     protected function detectFramework()
     {
-        if (class_exists('\Jankx\Dashboard\OptionFramework')) {
-            return 'jankx';
-        }
+        error_log('[JANKX DEBUG] Framework detection: Starting detection');
+
+        // Priority 1: Redux Framework (highest priority)
         if (class_exists('Redux')) {
+            error_log('[JANKX DEBUG] Framework detection: Redux class found');
             return 'redux';
         }
+        error_log('[JANKX DEBUG] Framework detection: Redux class not found');
+
+        // Priority 2: Jankx Dashboard Framework
+        if (class_exists('\Jankx\Dashboard\OptionFramework')) {
+            error_log('[JANKX DEBUG] Framework detection: Jankx OptionFramework class found');
+            return 'jankx';
+        }
+        error_log('[JANKX DEBUG] Framework detection: Jankx OptionFramework class not found');
+
+        // Priority 3: WPZOOM Framework
         if ((defined('WPZOOM_INC') && class_exists('option'))) {
+            error_log('[JANKX DEBUG] Framework detection: WPZOOM class found');
             return 'zoom';
         }
-        return 'wordpress';
+        error_log('[JANKX DEBUG] Framework detection: WPZOOM class not found');
+
+        // Priority 4: WordPress Customizer (always available)
+        error_log('[JANKX DEBUG] Framework detection: Using WordPress Customizer');
+        return 'customize';
     }
 
     public function loadFramework()
     {
+        error_log('[JANKX DEBUG] Framework loading: Starting with mode: ' . static::$mode);
+
         // First, try to get framework from config
         if (static::$mode === 'auto') {
             $configFramework = $this->getFrameworkFromConfig();
+            error_log('[JANKX DEBUG] Framework loading: Config framework: ' . ($configFramework ?: 'null'));
 
             if ($configFramework) {
                 static::$mode = $configFramework;
+                error_log('[JANKX DEBUG] Framework loading: Using config framework: ' . static::$mode);
             } else {
                 // Fallback to auto-detection if no config found
                 $mode = $this->detectFramework();
+                error_log('[JANKX DEBUG] Framework loading: Detected framework: ' . $mode);
 
                 if ($mode && !in_array($mode, ['auto', 'wordpress'])) {
                     update_option('jankx_option_framework', $mode);
                     static::$mode = $mode;
+                    error_log('[JANKX DEBUG] Framework loading: Set mode to: ' . static::$mode);
                 }
             }
         }
@@ -119,6 +142,7 @@ class Framework
             'kirki'     => KirkiFramework::class,
             'redux'     => ReduxFramework::class,
             'wordpress' => WordPressSettingAPI::class,
+            'customize' => CustomizeFramework::class,
         ));
 
         if (!isset($frameworks[static::$mode])) {

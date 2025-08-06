@@ -31,26 +31,26 @@ class ReduxTransformer
     /**
      * Transform page configuration to Redux section
      *
-     * @param array $page Page configuration
+     * @param \Jankx\Adapter\Options\Specs\Page $page Page object
      * @return array Redux section
      */
     public static function transformPage($page)
     {
         $section = [
-            'id' => $page['id'],
-            'title' => $page['name'],
-            'desc' => isset($page['args']['description']) ? $page['args']['description'] : '',
+            'id' => $page->getId(),
+            'title' => $page->getTitle(),
+            'desc' => $page->getDescription() ?? '',
             'fields' => [],
         ];
 
         // Add icon if exists
-        if (isset($page['args']['icon'])) {
-            $section['icon'] = $page['args']['icon'];
+        if ($page->getIcon()) {
+            $section['icon'] = $page->getIcon();
         }
 
         // Add priority if exists
-        if (isset($page['args']['priority'])) {
-            $section['priority'] = $page['args']['priority'];
+        if ($page->getPriority()) {
+            $section['priority'] = $page->getPriority();
         }
 
         return $section;
@@ -59,17 +59,15 @@ class ReduxTransformer
     /**
      * Transform section configuration to Redux fields
      *
-     * @param array $section Section configuration
+     * @param \Jankx\Adapter\Options\Specs\Section $section Section object
      * @return array Redux fields
      */
     public static function transformSection($section)
     {
         $fields = [];
 
-        if (isset($section['fields'])) {
-            foreach ($section['fields'] as $field) {
-                $fields[] = self::transformField($field);
-            }
+        foreach ($section->getFields() as $field) {
+            $fields[] = self::transformField($field);
         }
 
         return $fields;
@@ -78,37 +76,39 @@ class ReduxTransformer
     /**
      * Transform field configuration to Redux field
      *
-     * @param array $field Field configuration
+     * @param \Jankx\Adapter\Options\Specs\Field $field Field object
      * @return array Redux field
      */
     public static function transformField($field)
     {
+        error_log('[JANKX DEBUG] ReduxTransformer: Transforming field - ' . $field->getId() . ' (' . $field->getType() . ')');
+
         $reduxField = [
-            'id' => $field['id'],
-            'type' => self::mapFieldType($field['type']),
-            'title' => $field['name'],
+            'id' => $field->getId(),
+            'type' => self::mapFieldType($field->getType()),
+            'title' => $field->getTitle(),
         ];
 
         // Add subtitle
-        if (isset($field['sub_title'])) {
-            $reduxField['subtitle'] = $field['sub_title'];
+        if ($field->getSubtitle()) {
+            $reduxField['subtitle'] = $field->getSubtitle();
         }
 
         // Add description
-        if (isset($field['description'])) {
-            $reduxField['desc'] = $field['description'];
+        if ($field->getDescription()) {
+            $reduxField['desc'] = $field->getDescription();
         }
 
         // Add default value
-        if (isset($field['default_value'])) {
-            $reduxField['default'] = $field['default_value'];
+        if ($field->getDefault()) {
+            $reduxField['default'] = $field->getDefault();
         }
 
         // Add WordPress native support
-        if (isset($field['wordpress_native']) && $field['wordpress_native']) {
+        if ($field->isWordPressNative()) {
             $reduxField['wordpress_native'] = true;
-            if (isset($field['option_name'])) {
-                $reduxField['option_name'] = $field['option_name'];
+            if ($field->getOptionName()) {
+                $reduxField['option_name'] = $field->getOptionName();
             }
         }
 
@@ -151,78 +151,81 @@ class ReduxTransformer
      * Add field-specific options for Redux
      *
      * @param array $reduxField Redux field configuration
-     * @param array $field Original field configuration
+     * @param \Jankx\Adapter\Options\Specs\Field $field Original field object
      * @return array Updated Redux field
      */
     public static function addFieldOptions($reduxField, $field)
     {
-        switch ($field['type']) {
+        switch ($field->getType()) {
             case 'select':
-                if (isset($field['options'])) {
-                    $reduxField['options'] = $field['options'];
+                if ($field->hasOptions()) {
+                    $reduxField['options'] = $field->getOptions();
                 }
                 break;
 
             case 'radio':
-                if (isset($field['options'])) {
-                    $reduxField['options'] = $field['options'];
+                if ($field->hasOptions()) {
+                    $reduxField['options'] = $field->getOptions();
                 }
                 break;
 
             case 'slider':
-                if (isset($field['min'])) {
-                    $reduxField['min'] = $field['min'];
+                if ($field->hasMin()) {
+                    $reduxField['min'] = $field->getMin();
                 }
-                if (isset($field['max'])) {
-                    $reduxField['max'] = $field['max'];
+                if ($field->hasMax()) {
+                    $reduxField['max'] = $field->getMax();
                 }
-                if (isset($field['step'])) {
-                    $reduxField['step'] = $field['step'];
+                if ($field->hasStep()) {
+                    $reduxField['step'] = $field->getStep();
                 }
                 break;
 
             case 'image_select':
-                if (isset($field['options'])) {
-                    $reduxField['options'] = $field['options'];
+                if ($field->hasOptions()) {
+                    $reduxField['options'] = $field->getOptions();
                 }
                 break;
 
             case 'typography':
-                if (isset($field['options'])) {
-                    $reduxField['google'] = isset($field['options']['google']) ? $field['options']['google'] : true;
-                    $reduxField['font-family'] = isset($field['options']['font-family']) ? $field['options']['font-family'] : true;
-                    $reduxField['font-size'] = isset($field['options']['font-size']) ? $field['options']['font-size'] : true;
-                    $reduxField['font-weight'] = isset($field['options']['font-weight']) ? $field['options']['font-weight'] : true;
-                    $reduxField['line-height'] = isset($field['options']['line-height']) ? $field['options']['line-height'] : true;
-                    $reduxField['color'] = isset($field['options']['color']) ? $field['options']['color'] : true;
+                if ($field->hasOptions()) {
+                    $options = $field->getOptions();
+                    $reduxField['google'] = isset($options['google']) ? $options['google'] : true;
+                    $reduxField['font-family'] = isset($options['font-family']) ? $options['font-family'] : true;
+                    $reduxField['font-size'] = isset($options['font-size']) ? $options['font-size'] : true;
+                    $reduxField['font-weight'] = isset($options['font-weight']) ? $options['font-weight'] : true;
+                    $reduxField['line-height'] = isset($options['line-height']) ? $options['line-height'] : true;
+                    $reduxField['color'] = isset($options['color']) ? $options['color'] : true;
                 }
                 break;
 
             case 'repeater':
-                if (isset($field['fields'])) {
+                if ($field->hasSubFields()) {
                     $reduxField['fields'] = [];
-                    foreach ($field['fields'] as $subField) {
+                    foreach ($field->getSubFields() as $subField) {
                         $reduxField['fields'][] = self::transformField($subField);
                     }
                 }
                 break;
 
             case 'sorter':
-                if (isset($field['options'])) {
-                    $reduxField['options'] = $field['options'];
+                if ($field->hasOptions()) {
+                    $reduxField['options'] = $field->getOptions();
                 }
                 break;
 
             case 'media':
-                if (isset($field['options'])) {
-                    $reduxField['preview_size'] = isset($field['options']['preview_size']) ? $field['options']['preview_size'] : 'medium';
-                    $reduxField['library_filter'] = isset($field['options']['library_filter']) ? $field['options']['library_filter'] : [];
+                if ($field->hasOptions()) {
+                    $options = $field->getOptions();
+                    $reduxField['preview_size'] = isset($options['preview_size']) ? $options['preview_size'] : 'medium';
+                    $reduxField['library_filter'] = isset($options['library_filter']) ? $options['library_filter'] : [];
                 }
                 break;
 
             case 'gallery':
-                if (isset($field['options'])) {
-                    $reduxField['preview_size'] = isset($field['options']['preview_size']) ? $field['options']['preview_size'] : 'medium';
+                if ($field->hasOptions()) {
+                    $options = $field->getOptions();
+                    $reduxField['preview_size'] = isset($options['preview_size']) ? $options['preview_size'] : 'medium';
                 }
                 break;
         }
@@ -336,6 +339,54 @@ class ReduxTransformer
         $optionName = trim($optionName, '_');
 
         return $optionName . '_theme_options';
+    }
+
+    /**
+     * Transform OptionsReader data to Redux format
+     *
+     * @param \Jankx\Adapter\Options\OptionsReader $optionsReader
+     * @return array
+     */
+    public static function transformOptionsReader($optionsReader)
+    {
+        error_log('[JANKX DEBUG] ReduxTransformer: Starting transformation');
+
+        $reduxData = [
+            'sections' => [],
+        ];
+
+        // Get pages from options reader
+        $pages = $optionsReader->getPages();
+        error_log('[JANKX DEBUG] ReduxTransformer: Found ' . count($pages) . ' pages');
+
+        foreach ($pages as $page) {
+            // Transform page to Redux section (pages become sections in Redux)
+            $reduxSection = self::transformPage($page);
+            $reduxSection['fields'] = []; // Initialize fields array
+
+            // Get sections for this page
+            $sections = $optionsReader->getSections($page->getTitle());
+            error_log('[JANKX DEBUG] ReduxTransformer: Page "' . $page->getTitle() . '" has ' . count($sections) . ' sections');
+
+            // Merge all fields from all sections into one section
+            foreach ($sections as $section) {
+                // Get fields for this section
+                $fields = $optionsReader->getFields($section->getTitle());
+                error_log('[JANKX DEBUG] ReduxTransformer: Section "' . $section->getTitle() . '" has ' . count($fields) . ' fields');
+
+                // Transform each field and add to the section
+                foreach ($fields as $field) {
+                    $transformedField = self::transformField($field);
+                    $reduxSection['fields'][] = $transformedField;
+                }
+            }
+
+            $reduxData['sections'][] = $reduxSection;
+            error_log('[JANKX DEBUG] ReduxTransformer: Final section "' . $page->getTitle() . '" has ' . count($reduxSection['fields']) . ' fields');
+        }
+
+        error_log('[JANKX DEBUG] ReduxTransformer: Transformation completed with ' . count($reduxData['sections']) . ' sections');
+        return $reduxData;
     }
 
     /**

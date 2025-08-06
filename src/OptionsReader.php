@@ -8,6 +8,8 @@ if (!defined('ABSPATH')) {
 
 use Jankx\Adapter\Options\Repositories\ConfigRepository;
 
+
+
 class OptionsReader
 {
     protected static $instance = null;
@@ -17,9 +19,16 @@ class OptionsReader
     protected $optionsDirectoryPath = null;
     protected $childThemeOverrideEnabled = true;
 
+    /**
+     * Check if path is absolute
+     */
+    private function isAbsolutePath($path) {
+        return $path[0] === '/' || (strlen($path) > 2 && $path[1] === ':' && $path[2] === '\\');
+    }
+
     private function __construct()
     {
-        $this->configRepository = new ConfigRepository();
+        // Không tạo ConfigRepository trong constructor để tránh vòng lặp
     }
 
     public static function getInstance()
@@ -33,6 +42,7 @@ class OptionsReader
     public function setOptionsDirectoryPath($optionsDirectoryPath)
     {
         $this->optionsDirectoryPath = $optionsDirectoryPath;
+        error_log('[JANKX DEBUG] OptionsReader: setOptionsDirectoryPath called with: ' . $optionsDirectoryPath);
     }
 
     public function setChildThemeOverrideEnabled($enabled)
@@ -43,7 +53,8 @@ class OptionsReader
     public function getOptionsDirectoryPath()
     {
         if (is_null($this->optionsDirectoryPath)) {
-            $this->optionsDirectoryPath = sprintf('%s/includes/options', constant('JANKX_ABSPATH'));
+            // Default fallback path
+            $this->optionsDirectoryPath = get_stylesheet_directory() . '/resources/options';
         }
 
         return apply_filters(
@@ -61,31 +72,66 @@ class OptionsReader
     {
         $directories = [];
 
-        // Priority 1: Child theme (highest priority)
-        if ($this->childThemeOverrideEnabled && is_child_theme()) {
-            $childThemePath = get_stylesheet_directory() . '/includes/options';
-            if (is_dir($childThemePath)) {
-                $directories[] = $childThemePath;
+        error_log('[JANKX DEBUG] OptionsReader: optionsDirectoryPath = ' . ($this->optionsDirectoryPath ?: 'null'));
+
+        // If optionsDirectoryPath is set, use it as relative path
+        if ($this->optionsDirectoryPath && !$this->isAbsolutePath($this->optionsDirectoryPath)) {
+            // Priority 1: Child theme (highest priority)
+            if ($this->childThemeOverrideEnabled) {
+                // Force check child theme path even if WordPress doesn't recognize it as child theme
+                $childThemePath = get_stylesheet_directory() . '/' . $this->optionsDirectoryPath;
+                error_log('[JANKX DEBUG] OptionsReader: Checking child theme path: ' . $childThemePath);
+                if (is_dir($childThemePath)) {
+                    $directories[] = $childThemePath;
+                    error_log('[JANKX DEBUG] OptionsReader: Added child theme path: ' . $childThemePath);
+                } else {
+                    error_log('[JANKX DEBUG] OptionsReader: Child theme path not found: ' . $childThemePath);
+                }
+            } else {
+                error_log('[JANKX DEBUG] OptionsReader: Child theme check failed - childThemeOverrideEnabled: ' . ($this->childThemeOverrideEnabled ? 'true' : 'false') . ', is_child_theme(): ' . (is_child_theme() ? 'true' : 'false'));
+            }
+
+            // Priority 2: Parent theme
+            $parentThemePath = get_template_directory() . '/' . $this->optionsDirectoryPath;
+            if (is_dir($parentThemePath)) {
+                $directories[] = $parentThemePath;
+                error_log('[JANKX DEBUG] OptionsReader: Added parent theme path: ' . $parentThemePath);
+            } else {
+                error_log('[JANKX DEBUG] OptionsReader: Parent theme path not found: ' . $parentThemePath);
+            }
+        } else {
+            // Legacy behavior - use absolute paths
+            // Priority 1: Child theme (highest priority)
+            if ($this->childThemeOverrideEnabled && is_child_theme()) {
+                $childThemePath = get_stylesheet_directory() . '/resources/options';
+                if (is_dir($childThemePath)) {
+                    $directories[] = $childThemePath;
+                    error_log('[JANKX DEBUG] OptionsReader: Added child theme path: ' . $childThemePath);
+                } else {
+                    error_log('[JANKX DEBUG] OptionsReader: Child theme path not found: ' . $childThemePath);
+                }
+            }
+
+            // Priority 2: Parent theme
+            $parentThemePath = get_template_directory() . '/resources/options';
+            if (is_dir($parentThemePath)) {
+                $directories[] = $parentThemePath;
+                error_log('[JANKX DEBUG] OptionsReader: Added parent theme path: ' . $parentThemePath);
+            } else {
+                error_log('[JANKX DEBUG] OptionsReader: Parent theme path not found: ' . $parentThemePath);
             }
         }
 
-        // Priority 2: Parent theme
-        $parentThemePath = get_template_directory() . '/includes/options';
-        if (is_dir($parentThemePath)) {
-            $directories[] = $parentThemePath;
-        }
-
-        // Priority 3: Jankx framework default
-        $frameworkPath = sprintf('%s/includes/options', constant('JANKX_ABSPATH'));
-        if (is_dir($frameworkPath)) {
-            $directories[] = $frameworkPath;
-        }
-
-        // Priority 4: Fallback to tests configs
+        // Priority 3: Fallback to tests configs
         $fallbackPath = __DIR__ . '/../tests/configs';
         if (is_dir($fallbackPath)) {
             $directories[] = $fallbackPath;
+            error_log('[JANKX DEBUG] OptionsReader: Added fallback path: ' . $fallbackPath);
+        } else {
+            error_log('[JANKX DEBUG] OptionsReader: Fallback path not found: ' . $fallbackPath);
         }
+
+        error_log('[JANKX DEBUG] OptionsReader: Final directories: ' . json_encode($directories));
 
         return apply_filters('jankx/option/directories', $directories);
     }
@@ -121,9 +167,11 @@ class OptionsReader
         $filePath = $this->findFileInDirectories($relativePath);
 
         if (!$filePath) {
+            error_log('[JANKX DEBUG] OptionsReader: Configuration file not found: ' . $relativePath);
             return null;
         }
 
+        error_log('[JANKX DEBUG] OptionsReader: Loading configuration from: ' . $filePath);
         return include $filePath;
     }
 
@@ -203,8 +251,11 @@ class OptionsReader
         $pagesConfig = $this->loadConfiguration('pages.php');
 
         if (!$pagesConfig) {
+            error_log('[JANKX DEBUG] OptionsReader: No custom pages.php found, using fallback');
             // Fallback to tests configs if no custom config found
             $pagesConfig = include __DIR__ . '/../tests/configs/pages.php';
+        } else {
+            error_log('[JANKX DEBUG] OptionsReader: Using custom pages.php');
         }
 
         return $pagesConfig;
@@ -237,16 +288,32 @@ class OptionsReader
 
     public function getPages()
     {
+        // Tạo ConfigRepository khi cần thiết
+        if (!$this->configRepository) {
+            $this->configRepository = new ConfigRepository();
+        }
         return $this->configRepository->getPages();
     }
 
     public function getSections($pageTitle)
     {
+        // Tạo ConfigRepository khi cần thiết
+        if (!$this->configRepository) {
+            $this->configRepository = new ConfigRepository();
+        }
         return $this->configRepository->getSections($pageTitle);
     }
 
     public function getFields($sectionTitle)
     {
-        return $this->configRepository->getFields($sectionTitle);
+        // Tạo ConfigRepository khi cần thiết
+        if (!$this->configRepository) {
+            $this->configRepository = new ConfigRepository();
+        }
+
+        $fields = $this->configRepository->getFields($sectionTitle);
+        error_log('[JANKX DEBUG] OptionsReader: getFields for section "' . $sectionTitle . '" returned ' . count($fields) . ' fields');
+
+        return $fields;
     }
 }

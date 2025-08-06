@@ -17,6 +17,7 @@ class ReduxFramework extends Adapter
     protected $optionName;
     protected $themeOptions;
     protected $reduxConfig;
+    protected $reduxInstance;
 
     protected static $mapSectionFields = array(
         'requiredSection' => 'require',
@@ -99,19 +100,82 @@ class ReduxFramework extends Adapter
         );
     }
 
-    public function register_admin_menu($menu_title, $display_name)
+        public function register_admin_menu($menu_title, $display_name)
     {
+        if (!class_exists(Redux::class)) {
+            error_log('[JANKX DEBUG] ReduxFramework: Redux class not found');
+            return;
+        }
+
         $theme = wp_get_theme(); // For use with some settings. Not necessary.
 
         $args = array(
+            'opt_name'             => $this->optionName,
             'display_name'         => $display_name,
             'menu_title'           => $menu_title,
-            'customizer'           => true,
+            'customizer'           => false, // Set to false to create admin menu
             'display_version'      => $theme->get('Version'),
             'page_priority'        => 60,
             'dev_mode'             => defined('WP_DEBUG') && WP_DEBUG,
+            'page_parent'          => 'themes.php',
+            'page_permissions'     => 'manage_options',
+            'save_defaults'        => true,
+            'default_show'         => false,
+            'default_mark'         => '',
+            'show_import_export'   => true,
+            'transient_time'       => 60 * MINUTE_IN_SECONDS,
+            'output'               => true,
+            'output_tag'           => true,
+            'database'             => '',
+            'use_cdn'              => true,
+            'menu_type'            => 'submenu', // Force submenu type
+            'allow_sub_menu'       => true, // Allow submenu
+            'page_slug'            => $this->optionName, // Set page slug
         );
+
+        error_log('[JANKX DEBUG] ReduxFramework: Initializing Redux with args: ' . json_encode($args));
+
+                // Initialize Redux using constructor
+        $this->reduxInstance = new Redux($this->optionName, $args);
+
+        // Force Redux to create the menu
+        if ($this->reduxInstance && method_exists($this->reduxInstance, 'init')) {
+            $this->reduxInstance->init();
+        }
+
+        // Store args for later use
         $this->setArgs(apply_filters('jankx/opion/adapter/redux/args', $args));
+
+        error_log('[JANKX DEBUG] ReduxFramework: Redux initialized successfully');
+
+        // Force Redux to create the menu immediately
+        if (method_exists(Redux::class, 'init')) {
+            Redux::init($this->optionName);
+        }
+
+                // Add hook to ensure Redux menu is created
+        add_action('admin_menu', function() {
+            if (method_exists(Redux::class, 'init')) {
+                Redux::init($this->optionName);
+                error_log('[JANKX DEBUG] ReduxFramework: Redux menu created via admin_menu hook');
+            }
+        }, 5); // Higher priority
+
+        // Force create menu immediately
+        add_action('admin_init', function() {
+            if (method_exists(Redux::class, 'init')) {
+                Redux::init($this->optionName);
+                error_log('[JANKX DEBUG] ReduxFramework: Redux menu created via admin_init hook');
+            }
+        });
+
+        // Force create menu in init hook
+        add_action('init', function() {
+            if (method_exists(Redux::class, 'init')) {
+                Redux::init($this->optionName);
+                error_log('[JANKX DEBUG] ReduxFramework: Redux menu created via init hook');
+            }
+        });
     }
 
     /**
@@ -123,32 +187,40 @@ class ReduxFramework extends Adapter
     public function createSections($optionsReader)
     {
         if (!class_exists(Redux::class)) {
+            error_log('[JANKX DEBUG] ReduxFramework: Redux class not found in createSections');
             return;
         }
 
-        // Get pages from options reader
-        $pages = $optionsReader->getPages();
+        // Log transformer being used
+        error_log('[JANKX DEBUG] ReduxFramework: Using ReduxTransformer');
 
-        foreach ($pages as $page) {
-            // Transform page to Redux section
-            $reduxSection = ReduxTransformer::transformPage($page);
+        // Transform OptionsReader data to Redux format
+        $reduxData = ReduxTransformer::transformOptionsReader($optionsReader);
 
-            // Get sections for this page
-            $sections = $optionsReader->getSections($page->getTitle());
+        error_log('[JANKX DEBUG] ReduxFramework: Adding ' . count($reduxData['sections']) . ' sections to Redux');
 
-            foreach ($sections as $section) {
-                // Transform section fields to Redux fields
-                $reduxFields = ReduxTransformer::transformSection($section);
-                $reduxSection['fields'] = array_merge($reduxSection['fields'], $reduxFields);
-            }
+        // Add sections to Redux
+        foreach ($reduxData['sections'] as $section) {
+            error_log('[JANKX DEBUG] ReduxFramework: Adding section: ' . ($section['title'] ?? 'Unknown'));
 
-            // Add section to Redux
-            if (method_exists(Redux::class, 'set_section')) {
-                Redux::set_section($this->optionName, $reduxSection);
+            if ($this->reduxInstance) {
+                $this->reduxInstance->setSection($section);
             } else {
-                // Support old Redux version
-                Redux::setSection($this->optionName, $reduxSection);
+                if (method_exists(Redux::class, 'set_section')) {
+                    Redux::set_section($this->optionName, $section);
+                } else {
+                    // Support old Redux version
+                    Redux::setSection($this->optionName, $section);
+                }
             }
+        }
+
+        error_log('[JANKX DEBUG] ReduxFramework: All sections added successfully');
+
+        // Force Redux to create the menu after adding sections
+        if (method_exists(Redux::class, 'init')) {
+            Redux::init($this->optionName);
+            error_log('[JANKX DEBUG] ReduxFramework: Forced Redux init after adding sections');
         }
     }
 
