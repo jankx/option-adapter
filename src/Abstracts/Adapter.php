@@ -85,4 +85,12 @@ abstract class Adapter implements AdapterInterface
         }
         return $ret;
     }
+
+    /**
+     * Transform WordPress dashicons to framework-specific icons
+     *
+     * @param string $dashicon WordPress dashicon
+     * @return string Framework-specific icon
+     */
+    abstract public function transformIcon($dashicon);
 }

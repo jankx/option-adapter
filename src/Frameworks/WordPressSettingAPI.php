@@ -57,4 +57,30 @@ class WordPressSettingAPI extends Adapter
             $this->addSection($page);
         }
     }
+
+    /**
+     * Transform WordPress dashicons to WordPress Settings API icons
+     *
+     * @param string $dashicon WordPress dashicon
+     * @return string WordPress Settings API icon
+     */
+    public function transformIcon($dashicon)
+    {
+        // WordPress Settings API có thể sử dụng dashicons trực tiếp
+        $iconMap = [
+            'dashicons-admin-generic' => 'dashicons-admin-generic',
+            'dashicons-editor-textcolor' => 'dashicons-editor-textcolor',
+            'dashicons-art' => 'dashicons-art',
+            'dashicons-layout' => 'dashicons-layout',
+            'dashicons-align-wide' => 'dashicons-align-wide',
+            'dashicons-align-full-width' => 'dashicons-align-full-width',
+            'dashicons-admin-post' => 'dashicons-admin-post',
+            'dashicons-admin-tools' => 'dashicons-admin-tools',
+        ];
+
+        $mappedIcon = isset($iconMap[$dashicon]) ? $iconMap[$dashicon] : 'dashicons-admin-generic';
+        error_log('[JANKX DEBUG] WordPressSettingAPI: Mapping icon "' . $dashicon . '" to "' . $mappedIcon . '"');
+
+        return $mappedIcon;
+    }
 }

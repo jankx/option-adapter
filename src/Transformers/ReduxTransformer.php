@@ -34,8 +34,16 @@ class ReduxTransformer
      * @param \Jankx\Adapter\Options\Specs\Page $page Page object
      * @return array Redux section
      */
-    public static function transformPage($page)
+    public static function transformPage($page, $adapter = null)
     {
+        $icon = $page->getIcon();
+
+        if ($adapter && method_exists($adapter, 'transformIcon')) {
+            $icon = $adapter->transformIcon($icon);
+        } else {
+            $icon = self::mapIcon($icon);
+        }
+
         $section = [
             'id' => $page->getId(),
             'title' => $page->getTitle(),
@@ -43,9 +51,9 @@ class ReduxTransformer
             'fields' => [],
         ];
 
-        // Add icon if exists
-        if ($page->getIcon()) {
-            $section['icon'] = $page->getIcon();
+        // Add icon if exists and is valid
+        if ($icon) {
+            $section['icon'] = $icon;
         }
 
         // Add priority if exists
@@ -81,7 +89,7 @@ class ReduxTransformer
      */
     public static function transformField($field)
     {
-        error_log('[JANKX DEBUG] ReduxTransformer: Transforming field - ' . $field->getId() . ' (' . $field->getType() . ')');
+
 
         $reduxField = [
             'id' => $field->getId(),
@@ -116,6 +124,39 @@ class ReduxTransformer
         $reduxField = self::addFieldOptions($reduxField, $field);
 
         return $reduxField;
+    }
+
+    /**
+     * Map WordPress dashicons to Redux icons
+     *
+     * @param string $dashicon WordPress dashicon
+     * @return string Redux icon
+     */
+    public static function mapIcon($dashicon)
+    {
+        $iconMap = [
+            'dashicons-admin-generic' => 'el el-cog',
+            'dashicons-editor-textcolor' => 'el el-font',
+            'dashicons-art' => 'el el-picture',
+            'dashicons-layout' => 'el el-th-large',
+            'dashicons-align-wide' => 'el el-align-left',
+            'dashicons-align-full-width' => 'el el-align-justify',
+            'dashicons-admin-post' => 'el el-file',
+            'dashicons-admin-tools' => 'el el-wrench',
+            'dashicons-admin-settings' => 'el el-cog',
+            'dashicons-admin-appearance' => 'el el-picture',
+            'dashicons-admin-plugins' => 'el el-puzzle-piece',
+            'dashicons-admin-users' => 'el el-user',
+            'dashicons-admin-comments' => 'el el-comment',
+            'dashicons-admin-media' => 'el el-picture',
+            'dashicons-admin-links' => 'el el-link',
+            'dashicons-admin-page' => 'el el-file-alt',
+            'dashicons-admin-tools' => 'el el-wrench',
+        ];
+
+        $mappedIcon = isset($iconMap[$dashicon]) ? $iconMap[$dashicon] : 'el el-cog';
+
+        return $mappedIcon;
     }
 
     /**
@@ -347,21 +388,18 @@ class ReduxTransformer
      * @param \Jankx\Adapter\Options\OptionsReader $optionsReader
      * @return array
      */
-    public static function transformOptionsReader($optionsReader)
+    public static function transformOptionsReader($optionsReader, $adapter = null)
     {
-        error_log('[JANKX DEBUG] ReduxTransformer: Starting transformation');
-
         $reduxData = [
             'sections' => [],
         ];
 
         // Get pages from options reader
         $pages = $optionsReader->getPages();
-        error_log('[JANKX DEBUG] ReduxTransformer: Found ' . count($pages) . ' pages');
 
         foreach ($pages as $page) {
             // Transform page to Redux section (pages become sections in Redux)
-            $reduxSection = self::transformPage($page);
+            $reduxSection = self::transformPage($page, $adapter);
             $reduxSection['fields'] = []; // Initialize fields array
 
             // Get sections for this page

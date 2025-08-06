@@ -62,7 +62,8 @@ class ConfigRepository
 
     protected function makePage($config)
     {
-        return new Page($config['name'], []);
+        $icon = isset($config['args']['icon']) ? $config['args']['icon'] : '';
+        return new Page($config['name'], [], $icon);
     }
 
     protected function makeSection($config)

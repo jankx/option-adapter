@@ -71,4 +71,30 @@ class KirkiFramework extends Adapter
             $this->addSection($section);
         }
     }
+
+    /**
+     * Transform WordPress dashicons to Kirki icons
+     *
+     * @param string $dashicon WordPress dashicon
+     * @return string Kirki icon
+     */
+    public function transformIcon($dashicon)
+    {
+        // Kirki có thể sử dụng dashicons trực tiếp
+        $iconMap = [
+            'dashicons-admin-generic' => 'dashicons-admin-generic',
+            'dashicons-editor-textcolor' => 'dashicons-editor-textcolor',
+            'dashicons-art' => 'dashicons-art',
+            'dashicons-layout' => 'dashicons-layout',
+            'dashicons-align-wide' => 'dashicons-align-wide',
+            'dashicons-align-full-width' => 'dashicons-align-full-width',
+            'dashicons-admin-post' => 'dashicons-admin-post',
+            'dashicons-admin-tools' => 'dashicons-admin-tools',
+        ];
+
+        $mappedIcon = isset($iconMap[$dashicon]) ? $iconMap[$dashicon] : 'dashicons-admin-generic';
+        error_log('[JANKX DEBUG] KirkiFramework: Mapping icon "' . $dashicon . '" to "' . $mappedIcon . '"');
+
+        return $mappedIcon;
+    }
 }

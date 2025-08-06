@@ -195,8 +195,7 @@ class ReduxFramework extends Adapter
         error_log('[JANKX DEBUG] ReduxFramework: Using ReduxTransformer');
 
         // Transform OptionsReader data to Redux format
-        $reduxData = ReduxTransformer::transformOptionsReader($optionsReader);
-
+        $reduxData = ReduxTransformer::transformOptionsReader($optionsReader, $this);
         error_log('[JANKX DEBUG] ReduxFramework: Adding ' . count($reduxData['sections']) . ' sections to Redux');
 
         // Add sections to Redux
@@ -222,6 +221,40 @@ class ReduxFramework extends Adapter
             Redux::init($this->optionName);
             error_log('[JANKX DEBUG] ReduxFramework: Forced Redux init after adding sections');
         }
+    }
+
+    /**
+     * Transform WordPress dashicons to Redux Elusive Icons
+     *
+     * @param string $dashicon WordPress dashicon
+     * @return string Redux Elusive Icon
+     */
+    public function transformIcon($dashicon)
+    {
+        $iconMap = [
+            'dashicons-admin-generic' => 'el el-cog',
+            'dashicons-editor-textcolor' => 'el el-font',
+            'dashicons-art' => 'el el-picture',
+            'dashicons-layout' => 'el el-th-large',
+            'dashicons-align-wide' => 'el el-align-left',
+            'dashicons-align-full-width' => 'el el-align-justify',
+            'dashicons-admin-post' => 'el el-file',
+            'dashicons-admin-tools' => 'el el-wrench',
+            'dashicons-admin-settings' => 'el el-cog',
+            'dashicons-admin-appearance' => 'el el-picture',
+            'dashicons-admin-plugins' => 'el el-puzzle-piece',
+            'dashicons-admin-users' => 'el el-user',
+            'dashicons-admin-comments' => 'el el-comment',
+            'dashicons-admin-media' => 'el el-picture',
+            'dashicons-admin-links' => 'el el-link',
+            'dashicons-admin-page' => 'el el-file-alt',
+            'dashicons-admin-tools' => 'el el-wrench',
+        ];
+
+        $mappedIcon = isset($iconMap[$dashicon]) ? $iconMap[$dashicon] : 'el el-cog';
+        error_log('[JANKX DEBUG] ReduxFramework: Mapping icon "' . $dashicon . '" to "' . $mappedIcon . '"');
+
+        return $mappedIcon;
     }
 
     /**

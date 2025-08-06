@@ -195,4 +195,30 @@ class CustomizeFramework implements Adapter
             'options' => 'choices',
         ];
     }
+
+    /**
+     * Transform WordPress dashicons to WordPress Customizer icons
+     *
+     * @param string $dashicon WordPress dashicon
+     * @return string WordPress Customizer icon
+     */
+    public function transformIcon($dashicon)
+    {
+        // WordPress Customizer có thể sử dụng dashicons trực tiếp
+        $iconMap = [
+            'dashicons-admin-generic' => 'dashicons-admin-generic',
+            'dashicons-editor-textcolor' => 'dashicons-editor-textcolor',
+            'dashicons-art' => 'dashicons-art',
+            'dashicons-layout' => 'dashicons-layout',
+            'dashicons-align-wide' => 'dashicons-align-wide',
+            'dashicons-align-full-width' => 'dashicons-align-full-width',
+            'dashicons-admin-post' => 'dashicons-admin-post',
+            'dashicons-admin-tools' => 'dashicons-admin-tools',
+        ];
+
+        $mappedIcon = isset($iconMap[$dashicon]) ? $iconMap[$dashicon] : 'dashicons-admin-generic';
+        error_log('[JANKX DEBUG] CustomizeFramework: Mapping icon "' . $dashicon . '" to "' . $mappedIcon . '"');
+
+        return $mappedIcon;
+    }
 }
