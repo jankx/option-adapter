@@ -212,7 +212,7 @@ class CustomizeTransformer
      */
         public static function transformOptionsReader(OptionsReader $optionsReader)
     {
-        error_log('[JANKX DEBUG] CustomizeTransformer: Starting transformation');
+
 
         $customizerData = [
             'sections' => [],
@@ -244,7 +244,7 @@ class CustomizeTransformer
             $customizerData['sections'][] = $customizerSection;
         }
 
-        error_log('[JANKX DEBUG] CustomizeTransformer: Transformation completed');
+
         return $customizerData;
     }
 }

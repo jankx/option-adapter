@@ -46,8 +46,7 @@ class WordPressSettingAPI extends Adapter
      */
         public function createSections($optionsReader)
     {
-        // Log transformer being used
-        error_log('[JANKX DEBUG] WordPressSettingAPI: Using WordPressTransformer');
+        // Transform OptionsReader data to WordPress Settings API format
 
         // Transform OptionsReader data to WordPress Settings API format
         $wordpressData = \Jankx\Adapter\Options\Transformers\WordPressTransformer::transformOptionsReader($optionsReader);
@@ -79,7 +78,6 @@ class WordPressSettingAPI extends Adapter
         ];
 
         $mappedIcon = isset($iconMap[$dashicon]) ? $iconMap[$dashicon] : 'dashicons-admin-generic';
-        error_log('[JANKX DEBUG] WordPressSettingAPI: Mapping icon "' . $dashicon . '" to "' . $mappedIcon . '"');
 
         return $mappedIcon;
     }

@@ -42,7 +42,6 @@ class OptionsReader
     public function setOptionsDirectoryPath($optionsDirectoryPath)
     {
         $this->optionsDirectoryPath = $optionsDirectoryPath;
-        error_log('[JANKX DEBUG] OptionsReader: setOptionsDirectoryPath called with: ' . $optionsDirectoryPath);
     }
 
     public function setChildThemeOverrideEnabled($enabled)
@@ -72,32 +71,21 @@ class OptionsReader
     {
         $directories = [];
 
-        error_log('[JANKX DEBUG] OptionsReader: optionsDirectoryPath = ' . ($this->optionsDirectoryPath ?: 'null'));
-
         // If optionsDirectoryPath is set, use it as relative path
         if ($this->optionsDirectoryPath && !$this->isAbsolutePath($this->optionsDirectoryPath)) {
             // Priority 1: Child theme (highest priority)
             if ($this->childThemeOverrideEnabled) {
                 // Force check child theme path even if WordPress doesn't recognize it as child theme
                 $childThemePath = get_stylesheet_directory() . '/' . $this->optionsDirectoryPath;
-                error_log('[JANKX DEBUG] OptionsReader: Checking child theme path: ' . $childThemePath);
                 if (is_dir($childThemePath)) {
                     $directories[] = $childThemePath;
-                    error_log('[JANKX DEBUG] OptionsReader: Added child theme path: ' . $childThemePath);
-                } else {
-                    error_log('[JANKX DEBUG] OptionsReader: Child theme path not found: ' . $childThemePath);
                 }
-            } else {
-                error_log('[JANKX DEBUG] OptionsReader: Child theme check failed - childThemeOverrideEnabled: ' . ($this->childThemeOverrideEnabled ? 'true' : 'false') . ', is_child_theme(): ' . (is_child_theme() ? 'true' : 'false'));
             }
 
             // Priority 2: Parent theme
             $parentThemePath = get_template_directory() . '/' . $this->optionsDirectoryPath;
             if (is_dir($parentThemePath)) {
                 $directories[] = $parentThemePath;
-                error_log('[JANKX DEBUG] OptionsReader: Added parent theme path: ' . $parentThemePath);
-            } else {
-                error_log('[JANKX DEBUG] OptionsReader: Parent theme path not found: ' . $parentThemePath);
             }
         } else {
             // Legacy behavior - use absolute paths
@@ -106,9 +94,6 @@ class OptionsReader
                 $childThemePath = get_stylesheet_directory() . '/resources/options';
                 if (is_dir($childThemePath)) {
                     $directories[] = $childThemePath;
-                    error_log('[JANKX DEBUG] OptionsReader: Added child theme path: ' . $childThemePath);
-                } else {
-                    error_log('[JANKX DEBUG] OptionsReader: Child theme path not found: ' . $childThemePath);
                 }
             }
 
@@ -116,9 +101,6 @@ class OptionsReader
             $parentThemePath = get_template_directory() . '/resources/options';
             if (is_dir($parentThemePath)) {
                 $directories[] = $parentThemePath;
-                error_log('[JANKX DEBUG] OptionsReader: Added parent theme path: ' . $parentThemePath);
-            } else {
-                error_log('[JANKX DEBUG] OptionsReader: Parent theme path not found: ' . $parentThemePath);
             }
         }
 
@@ -126,12 +108,17 @@ class OptionsReader
         $fallbackPath = __DIR__ . '/../tests/configs';
         if (is_dir($fallbackPath)) {
             $directories[] = $fallbackPath;
-            error_log('[JANKX DEBUG] OptionsReader: Added fallback path: ' . $fallbackPath);
-        } else {
-            error_log('[JANKX DEBUG] OptionsReader: Fallback path not found: ' . $fallbackPath);
         }
 
-        error_log('[JANKX DEBUG] OptionsReader: Final directories: ' . json_encode($directories));
+        // Priority 4: Allow plugins and child themes to add custom directories
+        $customDirectories = apply_filters('jankx/option/custom_directories', []);
+        if (!empty($customDirectories)) {
+            foreach ($customDirectories as $customDir) {
+                if (is_dir($customDir)) {
+                    $directories[] = $customDir;
+                }
+            }
+        }
 
         return apply_filters('jankx/option/directories', $directories);
     }
@@ -167,11 +154,9 @@ class OptionsReader
         $filePath = $this->findFileInDirectories($relativePath);
 
         if (!$filePath) {
-            error_log('[JANKX DEBUG] OptionsReader: Configuration file not found: ' . $relativePath);
             return null;
         }
 
-        error_log('[JANKX DEBUG] OptionsReader: Loading configuration from: ' . $filePath);
         return include $filePath;
     }
 
@@ -238,6 +223,15 @@ class OptionsReader
             }
         }
 
+        // Allow plugins and child themes to modify all configurations
+        $configurations = apply_filters('jankx/option/all_configurations', $configurations);
+
+        // Allow plugins and child themes to add custom configurations
+        $customConfigurations = apply_filters('jankx/option/custom_configurations', []);
+        if (!empty($customConfigurations)) {
+            $configurations = array_merge_recursive($configurations, $customConfigurations);
+        }
+
         return $configurations;
     }
 
@@ -251,11 +245,8 @@ class OptionsReader
         $pagesConfig = $this->loadConfiguration('pages.php');
 
         if (!$pagesConfig) {
-            error_log('[JANKX DEBUG] OptionsReader: No custom pages.php found, using fallback');
             // Fallback to tests configs if no custom config found
             $pagesConfig = include __DIR__ . '/../tests/configs/pages.php';
-        } else {
-            error_log('[JANKX DEBUG] OptionsReader: Using custom pages.php');
         }
 
         return $pagesConfig;
@@ -283,6 +274,15 @@ class OptionsReader
             }
         }
 
+        // Allow plugins and child themes to modify sections for specific page
+        $sections = apply_filters('jankx/option/sections_for_page', $sections, $pageId);
+
+        // Allow plugins and child themes to add custom sections for specific page
+        $customSections = apply_filters('jankx/option/custom_sections_for_page', [], $pageId);
+        if (!empty($customSections)) {
+            $sections = array_merge($sections, $customSections);
+        }
+
         return $sections;
     }
 
@@ -292,7 +292,19 @@ class OptionsReader
         if (!$this->configRepository) {
             $this->configRepository = new ConfigRepository();
         }
-        return $this->configRepository->getPages();
+
+        $pages = $this->configRepository->getPages();
+
+        // Allow plugins and child themes to modify pages
+        $pages = apply_filters('jankx/option/pages', $pages);
+
+        // Allow plugins and child themes to add custom pages
+        $customPages = apply_filters('jankx/option/custom_pages_data', []);
+        if (!empty($customPages)) {
+            $pages = array_merge($pages, $customPages);
+        }
+
+        return $pages;
     }
 
     public function getSections($pageTitle)
@@ -301,7 +313,19 @@ class OptionsReader
         if (!$this->configRepository) {
             $this->configRepository = new ConfigRepository();
         }
-        return $this->configRepository->getSections($pageTitle);
+
+        $sections = $this->configRepository->getSections($pageTitle);
+
+        // Allow plugins and child themes to modify sections for specific page
+        $sections = apply_filters('jankx/option/sections', $sections, $pageTitle);
+
+        // Allow plugins and child themes to add custom sections for specific page
+        $customSections = apply_filters('jankx/option/custom_sections_data', [], $pageTitle);
+        if (!empty($customSections)) {
+            $sections = array_merge($sections, $customSections);
+        }
+
+        return $sections;
     }
 
     public function getFields($sectionTitle)
@@ -312,8 +336,72 @@ class OptionsReader
         }
 
         $fields = $this->configRepository->getFields($sectionTitle);
-        error_log('[JANKX DEBUG] OptionsReader: getFields for section "' . $sectionTitle . '" returned ' . count($fields) . ' fields');
+
+        // Allow plugins and child themes to modify fields for specific section
+        $fields = apply_filters('jankx/option/fields', $fields, $sectionTitle);
+
+        // Allow plugins and child themes to add custom fields for specific section
+        $customFields = apply_filters('jankx/option/custom_fields_data', [], $sectionTitle);
+        if (!empty($customFields)) {
+            $fields = array_merge($fields, $customFields);
+        }
 
         return $fields;
+    }
+
+    /**
+     * Register custom options from plugins or child themes
+     *
+     * @param string $pageId Page identifier
+     * @param array $pageConfig Page configuration
+     * @param array $sectionsConfig Sections configuration
+     * @return void
+     */
+    public function registerCustomOptions($pageId, $pageConfig = [], $sectionsConfig = [])
+    {
+        // Allow plugins and child themes to register custom options
+        do_action('jankx/option/register_custom_options', $pageId, $pageConfig, $sectionsConfig);
+
+        // Store custom options for later use
+        if (!empty($pageConfig)) {
+            add_filter('jankx/option/custom_pages', function($customPages) use ($pageId, $pageConfig) {
+                $customPages[$pageId] = $pageConfig;
+                return $customPages;
+            });
+        }
+
+        if (!empty($sectionsConfig)) {
+            add_filter('jankx/option/custom_sections_for_page', function($customSections) use ($pageId, $sectionsConfig) {
+                $customSections = array_merge($customSections, $sectionsConfig);
+                return $customSections;
+            });
+        }
+    }
+
+    /**
+     * Get all available filters for plugins and child themes
+     *
+     * @return array
+     */
+    public function getAvailableFilters()
+    {
+        return [
+            'jankx/option/directory/path' => 'Modify options directory path',
+            'jankx/option/directories' => 'Modify all options directories',
+            'jankx/option/custom_directories' => 'Add custom options directories',
+            'jankx/option/pages_config' => 'Modify pages configuration',
+            'jankx/option/custom_pages' => 'Add custom pages',
+            'jankx/option/all_configurations' => 'Modify all configurations',
+            'jankx/option/custom_configurations' => 'Add custom configurations',
+            'jankx/option/sections_for_page' => 'Modify sections for specific page',
+            'jankx/option/custom_sections_for_page' => 'Add custom sections for specific page',
+            'jankx/option/pages' => 'Modify pages data',
+            'jankx/option/custom_pages_data' => 'Add custom pages data',
+            'jankx/option/sections' => 'Modify sections data',
+            'jankx/option/custom_sections_data' => 'Add custom sections data',
+            'jankx/option/fields' => 'Modify fields data',
+            'jankx/option/custom_fields_data' => 'Add custom fields data',
+            'jankx/option/register_custom_options' => 'Register custom options hook',
+        ];
     }
 }

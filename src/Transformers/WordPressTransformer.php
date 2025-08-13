@@ -212,7 +212,7 @@ class WordPressTransformer
      */
         public static function transformOptionsReader(OptionsReader $optionsReader)
     {
-        error_log('[JANKX DEBUG] WordPressTransformer: Starting transformation');
+
 
         $wordpressData = [
             'pages' => [],
@@ -244,7 +244,7 @@ class WordPressTransformer
             $wordpressData['pages'][] = $wordpressPage;
         }
 
-        error_log('[JANKX DEBUG] WordPressTransformer: Transformation completed');
+
         return $wordpressData;
     }
 }

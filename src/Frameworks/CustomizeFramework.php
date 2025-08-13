@@ -146,8 +146,7 @@ class CustomizeFramework implements Adapter
 
         public function createSections($optionsReader)
     {
-        // Log transformer being used
-        error_log('[JANKX DEBUG] CustomizeFramework: Using CustomizeTransformer');
+        // Transform OptionsReader data to Customizer format
 
         // Transform OptionsReader data to Customizer format
         $customizerData = CustomizeTransformer::transformOptionsReader($optionsReader);
@@ -217,7 +216,6 @@ class CustomizeFramework implements Adapter
         ];
 
         $mappedIcon = isset($iconMap[$dashicon]) ? $iconMap[$dashicon] : 'dashicons-admin-generic';
-        error_log('[JANKX DEBUG] CustomizeFramework: Mapping icon "' . $dashicon . '" to "' . $mappedIcon . '"');
 
         return $mappedIcon;
     }

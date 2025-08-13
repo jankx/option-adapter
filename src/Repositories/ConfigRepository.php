@@ -21,11 +21,23 @@ class ConfigRepository
     public function __construct()
     {
         $this->optionsReader = OptionsReader::getInstance();
-        $this->loadConfigurations();
+        // Don't load configurations immediately to avoid circular dependencies
+        // They will be loaded when needed
     }
 
-    protected function loadConfigurations()
+        protected function loadConfigurations()
     {
+        // Initialize arrays if not already done
+        if (!isset($this->pages)) {
+            $this->pages = [];
+        }
+        if (!isset($this->sections)) {
+            $this->sections = [];
+        }
+        if (!isset($this->fields)) {
+            $this->fields = [];
+        }
+
         // Load pages configuration with override support
         $pagesConfig = $this->optionsReader->getPagesConfig();
 
@@ -47,28 +59,70 @@ class ConfigRepository
         $sectionsConfig = $this->optionsReader->getSectionsForPage($pageId);
 
         foreach ($sectionsConfig as $sectionName => $sectionConfig) {
+            // Tạo section trước
             $section = $this->makeSection($sectionConfig);
-            $this->addSection($pageTitle, $section);
 
-            // Add fields to section
+            // Tạo fields và add vào section trước khi add section vào page
             if (isset($sectionConfig['fields'])) {
                 foreach ($sectionConfig['fields'] as $fieldConfig) {
                     $field = $this->makeField($fieldConfig);
-                    $this->addField($section->getTitle(), $field);
+                    if ($field) {
+                        $section->addField($field);
+                    }
                 }
             }
+
+            // Add section vào page
+            $this->addSection($pageTitle, $section);
         }
     }
 
     protected function makePage($config)
     {
-        $icon = isset($config['args']['icon']) ? $config['args']['icon'] : '';
-        return new Page($config['name'], [], $icon);
+        $page = new Page($config['name'], [], '');
+
+        // Set page properties
+        if (isset($config['id'])) {
+            $page->setId($config['id']);
+        }
+        if (isset($config['args']['subtitle'])) {
+            $page->setSubtitle($config['args']['subtitle']);
+        }
+        if (isset($config['args']['description'])) {
+            $page->setDescription($config['args']['description']);
+        }
+        if (isset($config['args']['priority'])) {
+            $page->setPriority($config['args']['priority']);
+        }
+        if (isset($config['args']['icon'])) {
+            $page->setIcon($config['args']['icon']);
+        }
+
+        return $page;
     }
 
     protected function makeSection($config)
     {
-        return new Section($config['name'], []);
+        $section = new Section($config['name'], []);
+
+        // Set section properties
+        if (isset($config['id'])) {
+            $section->setId($config['id']);
+        }
+        if (isset($config['subtitle'])) {
+            $section->setSubtitle($config['subtitle']);
+        }
+        if (isset($config['description'])) {
+            $section->setDescription($config['description']);
+        }
+        if (isset($config['priority'])) {
+            $section->setPriority($config['priority']);
+        }
+        if (isset($config['icon'])) {
+            $section->setIcon($config['icon']);
+        }
+
+        return $section;
     }
 
     protected function makeField($config)
@@ -178,49 +232,109 @@ class ConfigRepository
 
     public function addPage(Page $page)
     {
+        // Ensure arrays are initialized
+        if (!isset($this->pages)) {
+            $this->pages = [];
+        }
+        if (!isset($this->sections)) {
+            $this->sections = [];
+        }
+        if (!isset($this->fields)) {
+            $this->fields = [];
+        }
         $this->pages[$page->getTitle()] = $page;
     }
 
     public function getPages()
     {
+        if (empty($this->pages)) {
+            $this->loadConfigurations();
+        }
         return $this->pages;
     }
 
-    public function addSection($pageTitle, Section $section)
+        public function addSection($pageTitle, Section $section)
     {
-        if (!isset($this->sections[$pageTitle])) {
-            $this->sections[$pageTitle] = [];
+        // Ensure configurations are loaded
+        if (empty($this->pages)) {
+            $this->loadConfigurations();
         }
-        $this->sections[$pageTitle][$section->getTitle()] = $section;
+
+        // Find the page and add the section to it
+        if (isset($this->pages[$pageTitle])) {
+            $this->pages[$pageTitle]->addSection($section);
+            // Also add to sections array for backward compatibility
+            if (!isset($this->sections[$pageTitle])) {
+                $this->sections[$pageTitle] = [];
+            }
+            $this->sections[$pageTitle][] = $section;
+        }
     }
 
-    public function getSections($pageTitle)
+        public function getSections($pageTitle)
     {
-        return $this->sections[$pageTitle] ?? [];
+        // Ensure configurations are loaded
+        if (empty($this->pages)) {
+            $this->loadConfigurations();
+        }
+
+        // Return from sections array for backward compatibility
+        if (isset($this->sections[$pageTitle])) {
+            return $this->sections[$pageTitle];
+        }
+
+        // Fallback to pages array
+        if (isset($this->pages[$pageTitle])) {
+            return $this->pages[$pageTitle]->getSections();
+        }
+        return [];
     }
 
     /**
-     * Summary of addField
+     * Add field to section
      *
      * @param mixed $sectionTitle
-     *
      * @param \Jankx\Dashboard\Interfaces\FieldInterface $field
-     *
      * @return void
      */
-    public function addField($sectionTitle, $field)
+        public function addField($sectionTitle, $field)
     {
-        if (!isset($this->fields[$sectionTitle])) {
-            $this->fields[$sectionTitle] = [];
+        // Ensure configurations are loaded
+        if (empty($this->pages)) {
+            $this->loadConfigurations();
         }
 
-        if (!is_null($field)) {
-            $this->fields[$sectionTitle][$field->getId()] = $field;
+        // Find the section and add the field to it
+        foreach ($this->pages as $pageTitle => $page) {
+            foreach ($page->getSections() as $section) {
+                if ($section->getTitle() === $sectionTitle) {
+                    $section->addField($field);
+                    // Also add to fields array for backward compatibility
+                    if (!isset($this->fields[$sectionTitle])) {
+                        $this->fields[$sectionTitle] = [];
+                    }
+                    $this->fields[$sectionTitle][] = $field;
+                    return;
+                }
+            }
         }
     }
 
     public function getFields($sectionTitle)
     {
-        return $this->fields[$sectionTitle] ?? [];
+        // Ensure configurations are loaded
+        if (empty($this->pages)) {
+            $this->loadConfigurations();
+        }
+
+        // Find the section and return its fields
+        foreach ($this->pages as $pageTitle => $page) {
+            foreach ($page->getSections() as $section) {
+                if ($section->getTitle() === $sectionTitle) {
+                    return $section->getFields();
+                }
+            }
+        }
+        return [];
     }
 }

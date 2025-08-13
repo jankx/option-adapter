@@ -43,7 +43,7 @@ class JankxOptionFramework extends Adapter
 
     public function register_admin_menu($menu_title, $display_name)
     {
-        error_log('[JANKX DEBUG] JankxOptionFramework: Registering admin menu');
+
 
         // Tạo instance của OptionFramework
         $this->framework = new OptionFramework(
@@ -70,7 +70,7 @@ class JankxOptionFramework extends Adapter
                 'menu_icon' => 'dashicons-admin-customizer'
             ]);
 
-        error_log('[JANKX DEBUG] JankxOptionFramework: Admin menu registered successfully');
+
     }
 
     /**
@@ -81,8 +81,7 @@ class JankxOptionFramework extends Adapter
      */
     public function createSections($optionsReader)
     {
-        // Log transformer being used (Native - no transformer needed)
-        error_log('[JANKX DEBUG] JankxOptionFramework: Using Native (no transformer)');
+        // Initialize framework if not already done
 
         // Initialize framework if not already done
         if (!$this->framework) {
@@ -163,7 +162,6 @@ class JankxOptionFramework extends Adapter
         ];
 
         $mappedIcon = isset($iconMap[$dashicon]) ? $iconMap[$dashicon] : 'dashicons-admin-generic';
-        error_log('[JANKX DEBUG] JankxOptionFramework: Mapping icon "' . $dashicon . '" to "' . $mappedIcon . '"');
 
         return $mappedIcon;
     }

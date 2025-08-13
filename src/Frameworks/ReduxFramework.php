@@ -103,7 +103,6 @@ class ReduxFramework extends Adapter
         public function register_admin_menu($menu_title, $display_name)
     {
         if (!class_exists(Redux::class)) {
-            error_log('[JANKX DEBUG] ReduxFramework: Redux class not found');
             return;
         }
 
@@ -157,7 +156,6 @@ class ReduxFramework extends Adapter
         add_action('admin_menu', function() {
             if (method_exists(Redux::class, 'init')) {
                 Redux::init($this->optionName);
-                error_log('[JANKX DEBUG] ReduxFramework: Redux menu created via admin_menu hook');
             }
         }, 5); // Higher priority
 
@@ -173,7 +171,6 @@ class ReduxFramework extends Adapter
         add_action('init', function() {
             if (method_exists(Redux::class, 'init')) {
                 Redux::init($this->optionName);
-                error_log('[JANKX DEBUG] ReduxFramework: Redux menu created via init hook');
             }
         });
     }
@@ -187,11 +184,10 @@ class ReduxFramework extends Adapter
     public function createSections($optionsReader)
     {
         if (!class_exists(Redux::class)) {
-            error_log('[JANKX DEBUG] ReduxFramework: Redux class not found in createSections');
             return;
         }
 
-        // Log transformer being used
+        // Transform OptionsReader data to Redux format
 
 
         // Transform OptionsReader data to Redux format
@@ -249,7 +245,6 @@ class ReduxFramework extends Adapter
         ];
 
         $mappedIcon = isset($iconMap[$dashicon]) ? $iconMap[$dashicon] : 'el el-cog';
-
 
         return $mappedIcon;
     }

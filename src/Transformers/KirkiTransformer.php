@@ -3,9 +3,9 @@
 namespace Jankx\Adapter\Options\Transformers;
 
 use Jankx\Adapter\Options\OptionsReader;
-use Jankx\Adapter\Options\Specs\Page;
-use Jankx\Adapter\Options\Specs\Section;
-use Jankx\Adapter\Options\Specs\Field;
+use Jankx\Adapter\Options\Interfaces\Page;
+use Jankx\Adapter\Options\Interfaces\Section;
+use Jankx\Adapter\Options\Interfaces\Field;
 
 if (!defined('ABSPATH')) {
     exit('Cheating huh?');
@@ -266,11 +266,10 @@ class KirkiTransformer
      * @param OptionsReader $optionsReader
      * @return array
      */
-        public static function transformOptionsReader(OptionsReader $optionsReader)
+    public static function transformOptionsReader($optionsReader, $adapter = null)
     {
-        error_log('[JANKX DEBUG] KirkiTransformer: Starting transformation');
-
         $kirkiData = [
+            'pages' => [],
             'sections' => [],
         ];
 
@@ -278,29 +277,56 @@ class KirkiTransformer
         $pages = $optionsReader->getPages();
 
         foreach ($pages as $page) {
-            // Transform page to Kirki section
-            $kirkiSection = self::transformPage($page);
+            // Create page data
+            $pageData = [
+                'id' => $page->getId(),
+                'title' => $page->getTitle(),
+                'subtitle' => $page->getSubtitle(),
+                'priority' => $page->getPriority() ?? 30,
+                'description' => $page->getDescription(),
+                'sections' => [],
+            ];
 
             // Get sections for this page
             $sections = $optionsReader->getSections($page->getTitle());
 
+            // Group sections by page
             foreach ($sections as $section) {
-                // Transform section to Kirki format
-                $transformedSection = self::transformSection($section);
+                $sectionData = [
+                    'id' => $section->getId(),
+                    'title' => $section->getTitle(),
+                    'description' => $section->getDescription() ?? '',
+                    'priority' => $section->getPriority() ?? 30,
+                    'page_id' => $page->getId(), // Link section to page
+                    'fields' => [],
+                ];
 
-                // Merge fields from all sections
-                if (isset($transformedSection['fields'])) {
-                    $kirkiSection['fields'] = array_merge(
-                        $kirkiSection['fields'] ?? [],
-                        $transformedSection['fields']
-                    );
+                // Add icon if exists
+                if ($section->getIcon()) {
+                    $sectionData['icon'] = $section->getIcon();
                 }
+
+                // Get fields for this section
+                $fields = $optionsReader->getFields($section->getTitle());
+
+                // Transform each field and add to the section
+                foreach ($fields as $field) {
+                    $transformedField = self::transformField($field);
+                    $sectionData['fields'][] = $transformedField;
+                }
+
+                // Add section to page
+                $pageData['sections'][] = $sectionData;
+
+                // Also add to main sections array for backward compatibility
+                $kirkiData['sections'][] = $sectionData;
             }
 
-            $kirkiData['sections'][] = $kirkiSection;
+            // Add page to pages array
+            $kirkiData['pages'][] = $pageData;
         }
 
-        error_log('[JANKX DEBUG] KirkiTransformer: Transformation completed');
+
         return $kirkiData;
     }
 }
