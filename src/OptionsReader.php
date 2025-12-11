@@ -26,6 +26,16 @@ class OptionsReader
         return $path[0] === '/' || (strlen($path) > 2 && $path[1] === ':' && $path[2] === '\\');
     }
 
+    /**
+     * Add directory to list if exists and avoid duplication
+     */
+    private function addDirectoryIfExists(array &$directories, $path)
+    {
+        if (is_dir($path) && !in_array($path, $directories)) {
+            $directories[] = $path;
+        }
+    }
+
     private function __construct()
     {
         // Không tạo ConfigRepository trong constructor để tránh vòng lặp
@@ -52,8 +62,8 @@ class OptionsReader
     public function getOptionsDirectoryPath()
     {
         if (is_null($this->optionsDirectoryPath)) {
-            // Default fallback path
-            $this->optionsDirectoryPath = get_stylesheet_directory() . '/resources/options';
+            // Default fallback path to theme options in parent theme
+            $this->optionsDirectoryPath = 'includes/theme-options';
         }
 
         return apply_filters(
@@ -70,65 +80,79 @@ class OptionsReader
     public function getOptionsDirectories()
     {
         $directories = [];
+        $optionsDirectory = $this->getOptionsDirectoryPath();
+        $isRelativePath = $optionsDirectory && !$this->isAbsolutePath($optionsDirectory);
+
+        // Priority 0: Core option directories (highest priority, always override)
+        $coreDirectories = apply_filters('jankx/option/core_directories', []);
+        if (!empty($coreDirectories)) {
+            foreach ($coreDirectories as $coreDir) {
+                $this->addDirectoryIfExists($directories, $coreDir);
+            }
+        }
 
         // If optionsDirectoryPath is set, use it as relative path
-        if ($this->optionsDirectoryPath && !$this->isAbsolutePath($this->optionsDirectoryPath)) {
+        if ($isRelativePath) {
             // Priority 1: Child theme (highest priority)
             if ($this->childThemeOverrideEnabled) {
                 // Force check child theme path even if WordPress doesn't recognize it as child theme
-                $childThemePath = get_stylesheet_directory() . '/' . $this->optionsDirectoryPath;
-                if (is_dir($childThemePath)) {
-                    $directories[] = $childThemePath;
-                }
+                $childThemePath = trailingslashit(get_stylesheet_directory()) . ltrim($optionsDirectory, '/');
+                $this->addDirectoryIfExists($directories, $childThemePath);
             }
 
             // Priority 2: Parent theme
-            $parentThemePath = get_template_directory() . '/' . $this->optionsDirectoryPath;
-            if (is_dir($parentThemePath)) {
-                $directories[] = $parentThemePath;
-            }
+            $parentThemePath = trailingslashit(get_template_directory()) . ltrim($optionsDirectory, '/');
+            $this->addDirectoryIfExists($directories, $parentThemePath);
         } else {
             // Legacy behavior - use absolute paths
             // Priority 1: Child theme (highest priority)
             if ($this->childThemeOverrideEnabled && is_child_theme()) {
                 $childThemePath = get_stylesheet_directory() . '/resources/options';
-                if (is_dir($childThemePath)) {
-                    $directories[] = $childThemePath;
-                }
+                $this->addDirectoryIfExists($directories, $childThemePath);
             }
 
             // Priority 2: Parent theme
             $parentThemePath = get_template_directory() . '/resources/options';
-            if (is_dir($parentThemePath)) {
-                $directories[] = $parentThemePath;
+            $this->addDirectoryIfExists($directories, $parentThemePath);
+        }
+
+        // Allow child theme overrides in common locations
+        if ($this->childThemeOverrideEnabled) {
+            $childOverridePaths = [
+                get_stylesheet_directory() . '/theme-options',
+                get_stylesheet_directory() . '/includes/theme-options',
+            ];
+            foreach ($childOverridePaths as $childPath) {
+                $this->addDirectoryIfExists($directories, $childPath);
             }
+        }
+
+        // Parent theme defaults
+        $parentDefaultPaths = [
+            get_template_directory() . '/includes/theme-options',
+            get_template_directory() . '/theme-options',
+        ];
+        foreach ($parentDefaultPaths as $parentPath) {
+            $this->addDirectoryIfExists($directories, $parentPath);
         }
 
         // Priority 3: Fallback to tests configs
         $fallbackPath = __DIR__ . '/../tests/configs';
         if (is_dir($fallbackPath)) {
-            $directories[] = $fallbackPath;
+            $this->addDirectoryIfExists($directories, $fallbackPath);
         }
 
         // Priority 4: Allow plugins and child themes to add custom directories
         $customDirectories = apply_filters('jankx/option/custom_directories', []);
         if (!empty($customDirectories)) {
             foreach ($customDirectories as $customDir) {
-                if (is_dir($customDir)) {
-                    $directories[] = $customDir;
-                }
+                $this->addDirectoryIfExists($directories, $customDir);
             }
         }
 
         return apply_filters('jankx/option/directories', $directories);
     }
 
-    /**
-     * Find file in directories with priority
-     *
-     * @param string $relativePath
-     * @return string|null
-     */
     public function findFileInDirectories($relativePath)
     {
         $directories = $this->getOptionsDirectories();
@@ -223,6 +247,12 @@ class OptionsReader
             }
         }
 
+        // Core configurations can override any file-based config
+        $coreConfigurations = apply_filters('jankx/option/core_configurations', []);
+        if (!empty($coreConfigurations)) {
+            $configurations = array_replace_recursive($configurations, $coreConfigurations);
+        }
+
         // Allow plugins and child themes to modify all configurations
         $configurations = apply_filters('jankx/option/all_configurations', $configurations);
 
@@ -249,6 +279,12 @@ class OptionsReader
             $pagesConfig = include __DIR__ . '/../tests/configs/pages.php';
         }
 
+        // Core pages config can override any file-based config
+        $corePagesConfig = apply_filters('jankx/option/core_pages_config', []);
+        if (!empty($corePagesConfig) && is_array($corePagesConfig)) {
+            $pagesConfig = array_replace_recursive((array) $pagesConfig, $corePagesConfig);
+        }
+
         return $pagesConfig;
     }
 
@@ -272,6 +308,12 @@ class OptionsReader
                     $sections[$sectionName] = include $file;
                 }
             }
+        }
+
+        // Core sections config can override file-based sections
+        $coreSections = apply_filters('jankx/option/core_sections_for_page', [], $pageId);
+        if (!empty($coreSections)) {
+            $sections = array_replace_recursive($sections, $coreSections);
         }
 
         // Allow plugins and child themes to modify sections for specific page
@@ -388,12 +430,16 @@ class OptionsReader
         return [
             'jankx/option/directory/path' => 'Modify options directory path',
             'jankx/option/directories' => 'Modify all options directories',
+            'jankx/option/core_directories' => 'Add core directories with highest priority',
             'jankx/option/custom_directories' => 'Add custom options directories',
             'jankx/option/pages_config' => 'Modify pages configuration',
+            'jankx/option/core_pages_config' => 'Add/override core pages configuration',
             'jankx/option/custom_pages' => 'Add custom pages',
             'jankx/option/all_configurations' => 'Modify all configurations',
+            'jankx/option/core_configurations' => 'Add/override core configurations',
             'jankx/option/custom_configurations' => 'Add custom configurations',
             'jankx/option/sections_for_page' => 'Modify sections for specific page',
+            'jankx/option/core_sections_for_page' => 'Add/override core sections for specific page',
             'jankx/option/custom_sections_for_page' => 'Add custom sections for specific page',
             'jankx/option/pages' => 'Modify pages data',
             'jankx/option/custom_pages_data' => 'Add custom pages data',
