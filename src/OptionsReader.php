@@ -136,13 +136,7 @@ class OptionsReader
             $this->addDirectoryIfExists($directories, $parentPath);
         }
 
-        // Priority 3: Fallback to tests configs
-        $fallbackPath = __DIR__ . '/../tests/configs';
-        if (is_dir($fallbackPath)) {
-            $this->addDirectoryIfExists($directories, $fallbackPath);
-        }
-
-        // Priority 4: Allow plugins and child themes to add custom directories
+        // Priority 3: Allow plugins and child themes to add custom directories
         $customDirectories = apply_filters('jankx/option/custom_directories', []);
         if (!empty($customDirectories)) {
             foreach ($customDirectories as $customDir) {
@@ -275,8 +269,8 @@ class OptionsReader
         $pagesConfig = $this->loadConfiguration('pages.php');
 
         if (!$pagesConfig) {
-            // Fallback to tests configs if no custom config found
-            $pagesConfig = include __DIR__ . '/../tests/configs/pages.php';
+            // Return empty array if no config found (no fallback to tests)
+            $pagesConfig = [];
         }
 
         // Core pages config can override any file-based config
