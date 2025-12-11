@@ -67,7 +67,9 @@ class JankxOptionFramework extends Adapter
                 'support_url' => 'https://example.com/support',
                 'documentation_url' => 'https://example.com/docs',
                 'menu_position' => 59,
-                'menu_icon' => 'dashicons-admin-customizer'
+                'menu_icon' => 'dashicons-admin-customizer',
+                'menu_slug' => 'jankx-theme-options', // Sử dụng slug thống nhất
+                'auto_register_menu' => false // Tắt auto register vì menu sẽ được tạo bởi JankxAdminPagesServiceProvider
             ]);
 
 
@@ -106,7 +108,9 @@ class JankxOptionFramework extends Adapter
                     'support_url' => 'https://example.com/support',
                     'documentation_url' => 'https://example.com/docs',
                     'menu_position' => 59,
-                    'menu_icon' => 'dashicons-admin-customizer'
+                    'menu_icon' => 'dashicons-admin-customizer',
+                    'menu_slug' => 'jankx-theme-options', // Sử dụng slug thống nhất
+                    'auto_register_menu' => false // Tắt auto register vì menu sẽ được tạo bởi JankxAdminPagesServiceProvider
                 ]);
         }
 
@@ -164,5 +168,15 @@ class JankxOptionFramework extends Adapter
         $mappedIcon = isset($iconMap[$dashicon]) ? $iconMap[$dashicon] : 'dashicons-admin-generic';
 
         return $mappedIcon;
+    }
+
+    /**
+     * Lấy OptionFramework instance
+     *
+     * @return OptionFramework|null
+     */
+    public function getFramework()
+    {
+        return $this->framework;
     }
 }
