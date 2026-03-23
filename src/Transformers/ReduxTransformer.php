@@ -183,6 +183,7 @@ class ReduxTransformer
             'gallery' => 'gallery',
             'repeater' => 'repeater',
             'sorter' => 'sorter',
+            'svg_chooser' => 'image_select',
         ];
 
         return isset($typeMap[$type]) ? $typeMap[$type] : $type;
@@ -223,6 +224,7 @@ class ReduxTransformer
                 break;
 
             case 'image_select':
+            case 'svg_chooser':
                 if ($field->hasOptions()) {
                     $reduxField['options'] = $field->getOptions();
                 }

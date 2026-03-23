@@ -92,6 +92,7 @@ class WordPressTransformer
         switch ($field->getType()) {
             case 'select':
             case 'radio':
+            case 'svg_chooser':
                 if ($field->hasOptions()) {
                     $wordpressField['options'] = $field->getOptions();
                 }
@@ -145,6 +146,7 @@ class WordPressTransformer
             'range' => 'range',
             'file' => 'file',
             'hidden' => 'hidden',
+            'svg_chooser' => 'radio',
         ];
 
         return $typeMap[$type] ?? 'text';
