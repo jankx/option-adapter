@@ -69,7 +69,8 @@ class JankxOptionFramework extends Adapter
                 'menu_position' => 59,
                 'menu_icon' => 'dashicons-admin-customizer',
                 'menu_slug' => 'jankx-theme-options', // Sử dụng slug thống nhất
-                'auto_register_menu' => false // Tắt auto register vì menu sẽ được tạo bởi JankxAdminPagesServiceProvider
+                'auto_register_menu' => false, // Tắt auto register vì menu sẽ được tạo bởi JankxAdminPagesServiceProvider
+                'sync_with_customizer' => true, // Bật đồng bộ với WordPress Customizer
             ]);
 
 
@@ -110,7 +111,8 @@ class JankxOptionFramework extends Adapter
                     'menu_position' => 59,
                     'menu_icon' => 'dashicons-admin-customizer',
                     'menu_slug' => 'jankx-theme-options', // Sử dụng slug thống nhất
-                    'auto_register_menu' => false // Tắt auto register vì menu sẽ được tạo bởi JankxAdminPagesServiceProvider
+                    'auto_register_menu' => false, // Tắt auto register vì menu sẽ được tạo bởi JankxAdminPagesServiceProvider
+                    'sync_with_customizer' => true, // Bật đồng bộ với WordPress Customizer
                 ]);
         }
 
@@ -120,10 +122,12 @@ class JankxOptionFramework extends Adapter
         // Add pages, sections, and fields to the OptionFramework
         foreach ($pages as $page) {
             $dashboardPage = new Page($page->getTitle(), []);
+            $dashboardPage->setId($page->getId());
 
             $sections = $optionsReader->getSections($page->getTitle());
             foreach ($sections as $section) {
                 $dashboardSection = new Section($section->getTitle(), []);
+                $dashboardSection->setId($section->getId());
 
                 $fields = $optionsReader->getFields($section->getTitle());
                 foreach ($fields as $field) {
