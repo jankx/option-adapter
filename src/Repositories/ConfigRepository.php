@@ -227,6 +227,37 @@ class ConfigRepository
             $args['layout'] = $config['layout'];
         }
 
+        // --- Repeater & Group field support ---
+        if (isset($config['fields'])) {
+            $args['fields'] = $config['fields'];
+        }
+        if (isset($config['group_values'])) {
+            $args['group_values'] = $config['group_values'];
+        }
+        if (isset($config['sortable'])) {
+            $args['sortable'] = $config['sortable'];
+        }
+        if (isset($config['add_button'])) {
+            $args['add_button'] = $config['add_button'];
+        }
+        if (isset($config['remove_button'])) {
+            $args['remove_button'] = $config['remove_button'];
+        }
+
+        // --- Common missing properties ---
+        if (isset($config['subtitle'])) {
+            $args['subtitle'] = $config['subtitle'];
+        }
+        if (isset($config['default'])) {
+            $args['default'] = $config['default'];
+        }
+        if (isset($config['placeholder'])) {
+            $args['placeholder'] = $config['placeholder'];
+        }
+        if (isset($config['class'])) {
+            $args['class'] = $config['class'];
+        }
+
         return FieldFactory::create($config['id'], $config['name'], $config['type'], $args);
     }
 
