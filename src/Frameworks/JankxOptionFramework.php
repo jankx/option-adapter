@@ -17,9 +17,18 @@ use Jankx\Dashboard\OptionFramework;
 class JankxOptionFramework extends Adapter
 {
     protected $framework;
+    protected $optName = 'jankx_options';
+    protected $sync = true;
 
     public function setArgs($args)
     {
+        if (isset($args['opt_name'])) {
+            $this->optName = $args['opt_name'];
+        }
+        if (isset($args['sync_with_customizer'])) {
+            $this->sync = (bool) $args['sync_with_customizer'];
+        }
+        error_log("Jankx Adapter setArgs: Sync is " . ($this->sync ? 'ON' : 'OFF'));
     }
 
     public function addSection($section)
@@ -38,6 +47,17 @@ class JankxOptionFramework extends Adapter
 
     public function getOption($name, $defaultValue = null)
     {
+        // First priority: Theme Mod (for Customizer sync)
+        $themeMod = get_theme_mod($name);
+        if ($themeMod !== false && !is_null($themeMod)) {
+            return $themeMod;
+        }
+
+        // Second priority: Main options group
+        $options = get_option($this->optName ?: 'jankx_options', []);
+        if (is_array($options) && array_key_exists($name, $options)) {
+            return $options[$name];
+        }
         return $defaultValue;
     }
 
@@ -47,7 +67,7 @@ class JankxOptionFramework extends Adapter
 
         // Tạo instance của OptionFramework
         $this->framework = new OptionFramework(
-            'jankx_options',
+            $this->optName ?: 'jankx_options',
             $display_name,
             $menu_title,
         );
@@ -70,7 +90,7 @@ class JankxOptionFramework extends Adapter
                 'menu_icon' => 'dashicons-admin-customizer',
                 'menu_slug' => 'jankx-theme-options', // Sử dụng slug thống nhất
                 'auto_register_menu' => false, // Tắt auto register vì menu sẽ được tạo bởi JankxAdminPagesServiceProvider
-                'sync_with_customizer' => true, // Bật đồng bộ với WordPress Customizer
+                'sync_with_customizer' => $this->sync, // Bật đồng bộ với WordPress Customizer
             ]);
 
 
@@ -84,12 +104,13 @@ class JankxOptionFramework extends Adapter
      */
     public function createSections($optionsReader)
     {
+        error_log("Jankx Adapter: createSections started");
         // Initialize framework if not already done
 
         // Initialize framework if not already done
         if (!$this->framework) {
             $this->framework = new OptionFramework(
-                'jankx_options',
+                $this->optName ?: 'jankx_options',
                 'Bookix Theme Options',
                 'Theme Options',
             );
@@ -112,12 +133,13 @@ class JankxOptionFramework extends Adapter
                     'menu_icon' => 'dashicons-admin-customizer',
                     'menu_slug' => 'jankx-theme-options', // Sử dụng slug thống nhất
                     'auto_register_menu' => false, // Tắt auto register vì menu sẽ được tạo bởi JankxAdminPagesServiceProvider
-                    'sync_with_customizer' => true, // Bật đồng bộ với WordPress Customizer
+                    'sync_with_customizer' => $this->sync, // Bật đồng bộ với WordPress Customizer
                 ]);
         }
 
         // Retrieve pages from the repository
         $pages = $optionsReader->getPages();
+        error_log("Jankx Adapter: found " . count($pages) . " pages");
 
         // Add pages, sections, and fields to the OptionFramework
         foreach ($pages as $page) {
