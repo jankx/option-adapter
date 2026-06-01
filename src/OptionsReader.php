@@ -91,6 +91,17 @@ class OptionsReader
             }
         }
 
+        // Allow child theme overrides in common locations (higher priority than parent)
+        if ($this->childThemeOverrideEnabled) {
+            $childOverridePaths = [
+                get_stylesheet_directory() . '/theme-options',
+                get_stylesheet_directory() . '/includes/theme-options',
+            ];
+            foreach ($childOverridePaths as $childPath) {
+                $this->addDirectoryIfExists($directories, $childPath);
+            }
+        }
+
         // If optionsDirectoryPath is set, use it as relative path
         if ($isRelativePath) {
             // Priority 1: Child theme (highest priority)
@@ -114,17 +125,6 @@ class OptionsReader
             // Priority 2: Parent theme
             $parentThemePath = get_template_directory() . '/resources/options';
             $this->addDirectoryIfExists($directories, $parentThemePath);
-        }
-
-        // Allow child theme overrides in common locations
-        if ($this->childThemeOverrideEnabled) {
-            $childOverridePaths = [
-                get_stylesheet_directory() . '/theme-options',
-                get_stylesheet_directory() . '/includes/theme-options',
-            ];
-            foreach ($childOverridePaths as $childPath) {
-                $this->addDirectoryIfExists($directories, $childPath);
-            }
         }
 
         // Parent theme defaults
