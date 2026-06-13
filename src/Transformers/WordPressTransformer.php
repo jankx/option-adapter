@@ -22,8 +22,8 @@ class WordPressTransformer
     public static function transformCompleteConfig(array $args)
     {
         return [
-            'option_name' => $args['opt_name'] ?? 'bookix_theme_options',
-            'display_name' => $args['display_name'] ?? 'Bookix Theme Options',
+            'option_name' => $args['opt_name'] ?? 'jankx_theme_options',
+            'display_name' => $args['display_name'] ?? __('Theme Options', 'jankx'),
             'display_version' => $args['display_version'] ?? '1.0.0',
             'menu_type' => 'settings', // WordPress Settings API
         ];

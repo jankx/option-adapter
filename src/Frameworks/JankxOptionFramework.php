@@ -111,13 +111,13 @@ class JankxOptionFramework extends Adapter
         if (!$this->framework) {
             $this->framework = new OptionFramework(
                 $this->optName ?: 'jankx_options',
-                'Bookix Theme Options',
-                'Theme Options',
+                __('Theme Options', 'jankx'),
+                __('Theme Options', 'jankx')
             );
 
             $this->framework
-                ->setPageTitle('Bookix Theme Options')
-                ->setMenuText('Theme Options')
+                ->setPageTitle(__('Theme Options', 'jankx'))
+                ->setMenuText(__('Theme Options', 'jankx'))
                 ->setConfig([
                     'logo' => 'https://example.com/logo.png',
                     'version' => '2.0.0',

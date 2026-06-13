@@ -14,7 +14,7 @@ class CustomizeFramework implements Adapter
 {
     protected $sections = [];
     protected $args = [];
-    protected $optionName = 'bookix_theme_options';
+    protected $optionName = 'jankx_theme_options';
 
     public function prepare()
     {
@@ -36,7 +36,7 @@ class CustomizeFramework implements Adapter
 
     protected function add_customizer_section($wp_customize, $section)
     {
-        $section_id = $section['id'] ?? 'bookix_' . sanitize_title($section['title']);
+        $section_id = $section['id'] ?? 'jankx_' . sanitize_title($section['title']);
 
         // Add section
         $wp_customize->add_section($section_id, [
@@ -54,7 +54,7 @@ class CustomizeFramework implements Adapter
 
     protected function add_customizer_field($wp_customize, $section_id, $field)
     {
-        $field_id = $field['id'] ?? 'bookix_' . sanitize_title($field['title']);
+        $field_id = $field['id'] ?? 'jankx_' . sanitize_title($field['title']);
         $setting_id = $this->optionName . '[' . $field_id . ']';
 
         // Add setting
