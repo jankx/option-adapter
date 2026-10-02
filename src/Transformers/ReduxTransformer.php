@@ -185,6 +185,70 @@ class ReduxTransformer
     }
 
     /**
+ * Normalize a checkbox group default to the Redux keyed shape
+ *
+ * Native config uses a list of selected keys (['author', 'date']), while Redux
+ * checkbox groups read one entry per option key (['author' => '1', 'date' => '1']).
+ * Without this the group renders but nothing is pre-selected.
+ *
+ * @param mixed $default Default value
+ * @param array $options Checkbox options (key => label)
+ * @return mixed Normalized default
+ */
+    protected static function normalizeCheckboxDefault($default, $options)
+    {
+        if (!is_array($default) || empty($default) || !is_array($options)) {
+            return $default;
+        }
+
+        if (array_keys($default) !== range(0, count($default) - 1)) {
+            return $default;
+        }
+
+        $normalized = [];
+
+        foreach ($default as $key) {
+            if (array_key_exists($key, $options)) {
+                $normalized[$key] = '1';
+            }
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * Flatten svg_chooser options to a Redux radio-compatible map
+     *
+     * Native shape: ['classic' => ['label' => 'Classic', 'svg' => '<svg…>']].
+     * Redux radio expects a flat ['classic' => 'Classic'] map, and image_select
+     * cannot be used because esc_url() strips the raw SVG markup.
+     *
+     * @param array $options svg_chooser options
+     * @return array Flattened key => label map
+     */
+    protected static function flattenSvgChooserOptions($options)
+    {
+        if (!is_array($options)) {
+            return [];
+        }
+
+        $flattened = [];
+
+        foreach ($options as $key => $option) {
+            if (!is_array($option)) {
+                $flattened[$key] = (string) $option;
+                continue;
+            }
+
+            $label = $option['label'] ?? $option['title'] ?? $option['name'] ?? '';
+
+            $flattened[$key] = $label !== '' ? $label : (string) $key;
+        }
+
+        return $flattened;
+    }
+
+    /**
      * Map standard field type to Redux field type
      *
      * @param string $type Standard field type
@@ -208,7 +272,7 @@ class ReduxTransformer
             'gallery' => 'gallery',
             'repeater' => 'repeater',
             'sorter' => 'sorter',
-            'svg_chooser' => 'image_select',
+            'svg_chooser' => 'radio',
         ];
 
         return isset($typeMap[$type]) ? $typeMap[$type] : $type;
@@ -236,6 +300,21 @@ class ReduxTransformer
                 }
                 break;
 
+            case 'checkbox':
+                if ($field->hasOptions()) {
+                    $reduxField['options'] = $field->getOptions();
+                    $reduxField['default'] = self::normalizeCheckboxDefault(
+                        $reduxField['default'] ?? null,
+                        $reduxField['options']
+                    );
+                }
+                break;
+
+            case 'switch':
+                $reduxField['on'] = $field->getArgs()['on'] ?? 'On';
+                $reduxField['off'] = $field->getArgs()['off'] ?? 'Off';
+                break;
+
             case 'slider':
                 if ($field->hasMin()) {
                     $reduxField['min'] = $field->getMin();
@@ -249,9 +328,14 @@ class ReduxTransformer
                 break;
 
             case 'image_select':
-            case 'svg_chooser':
                 if ($field->hasOptions()) {
                     $reduxField['options'] = $field->getOptions();
+                }
+                break;
+
+            case 'svg_chooser':
+                if ($field->hasOptions()) {
+                    $reduxField['options'] = self::flattenSvgChooserOptions($field->getOptions());
                 }
                 break;
 
@@ -591,6 +675,7 @@ class ReduxTransformer
         switch ($reduxField['type']) {
             case 'select':
             case 'radio':
+            case 'checkbox':
                 if (isset($reduxField['options'])) {
                     $field['options'] = $reduxField['options'];
                 }
