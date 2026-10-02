@@ -90,6 +90,9 @@ class ReduxTransformer
     public static function transformField($field)
     {
 
+        if (is_array($field)) {
+            $field = self::createFieldFromConfig($field);
+        }
 
         $reduxField = [
             'id' => $field->getId(),
@@ -124,6 +127,28 @@ class ReduxTransformer
         $reduxField = self::addFieldOptions($reduxField, $field);
 
         return $reduxField;
+    }
+
+    /**
+     * Build a field object from a plain field config array (repeater sub-fields)
+     *
+     * @param array $config Field configuration
+     * @return \Jankx\Adapter\Options\Interfaces\Field
+     */
+    protected static function createFieldFromConfig(array $config)
+    {
+        $id = $config['id'] ?? '';
+        $title = $config['name'] ?? ($config['title'] ?? '');
+        $type = $config['type'] ?? 'text';
+
+        if (class_exists('\Jankx\Dashboard\Factories\FieldFactory')) {
+            $field = \Jankx\Dashboard\Factories\FieldFactory::create($id, $title, $type, $config);
+            if ($field) {
+                return $field;
+            }
+        }
+
+        return new \Jankx\Dashboard\Elements\Fields\TextField($id, $title, $config);
     }
 
     /**
